@@ -1,1 +1,238 @@
 // app global css in SCSS form
+img{
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+.logoWDAALL{
+    margin-left: 5%;
+    margin-top: 5%;
+    margin-bottom: 5.5%;
+    width: 35%; 
+    
+}
+.q-list{
+    width: 100%;
+    min-width: 10%;
+    font-size: 3.3vh;
+    font-family:'Merriweather', serif;
+}
+.header-left {
+  width: auto;
+  display: flex;
+  justify-content: center;
+  padding-bottom: 1%;
+  
+}
+.menu-btn{
+  width: 10%;
+}
+.header-center {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+}
+.app-title{
+    margin-left: 2%;
+    font-size: 3.5vh;
+    color: rgba(159, 252, 255, 1);
+    font-weight: bold;
+}
+.pesquisaALL .q-field__control {
+  background-color: #c4c4c4 !important; /* cor desejada */
+  transition: background 0.2s;
+}
+.pesquisaALL.q-field--focused .q-field__control {
+  background-color: #b2ebf2 !important; /* cor quando focado */
+  color: black !important;
+}
+.CadastroBTN{
+    background-color: #0a4d3c !important;
+    color: white !important;
+    font-size: 2.5vh !important;
+    margin-left: 2%;
+    margin-bottom: 2%;
+    border-radius: 1vh !important;
+    width: 10% !important;
+    height: 10% !important;
+}
+
+.titulo{
+  margin-right: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 5vh;
+  font-weight: bold;
+}
+
+
+
+
+.modal{
+    width: 100%;
+    height: 90%;
+    border-radius: 5vh !important; 
+    margin-left: 10%;
+    margin-top: 3%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background-color: #404040;
+    
+
+}
+
+.inputModal .q-field__native,
+.inputModal .q-field__label {
+  color: white !important;
+}
+.modalCertificando{
+    
+    width: 60% !important;
+    height: 35%;
+    border-radius: 5vh !important; 
+    margin-left: 10%;
+    margin-top: 3%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    background: #404040;
+
+    
+
+}
+.tituloModal{
+    font-size: 4vh;
+    margin-top: 2%;
+    color: white;
+}
+.conteudoModal{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2vh;
+    width: 100%;
+    height: 100%;
+    
+}
+.conteudoModalLivros{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    
+}
+.botoesModal{
+    width: 100%;
+    height: 90%;
+    padding-top: 0;
+    margin-top: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 2vh;
+    
+}
+.modalBTN{
+    background-color: #0a4d3c !important;
+    color: white !important;
+    font-size: 2.5vh !important;
+    border-radius: 1vh !important;
+    width: 30% !important;
+    height: 20% !important;
+}
+.linha-destacada {
+  background-color: #404040;
+  color: white;
+}
+
+
+/* === GRID PRINCIPAL === */
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: 2fr 2fr 1fr; /* pizza | barras | totais */
+  gap: 2vh;
+  width: 100%;
+  height: 100%;
+  align-items: stretch;
+}
+
+/* === CARDS DE GRÁFICO === */
+.card {
+  background: #fff;
+  border-radius: 2vh;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 38.5%;
+  height: 300px;
+  
+}
+
+.card canvas {
+  width: 100% !important;
+  height: auto !important;
+  max-height: 240px;
+}
+
+/* === CARDS DE TOTAIS === */
+.cards-coluna {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.card-total {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  font-size: 3vh;
+  font-weight: bold;
+  text-align: center;
+  background-color: #0a4d3c;
+  color: white;
+  border-radius: 1vh;
+}
+
+/* === RESPONSIVIDADE === */
+@media (max-width: 1024px) {
+  .dashboard-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .cards-coluna {
+    flex-direction: row;
+  }
+
+  .card-total {
+    flex: none;
+    width: 50%;
+    height: 150px;
+  }
+}
+
+@media (max-width: 480px) {
+  .dashboard-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .cards-coluna {
+    flex-direction: column;
+  }
+
+  .card-total {
+    width: 100%;
+    height: 120px;
+  }
+}

@@ -1,106 +1,110 @@
 <template>
   <q-layout view="lHh Lpr lFf">
-    <q-header elevated>
-      <q-toolbar>
-        <q-btn
-          flat
-          dense
-          round
-          icon="menu"
-          aria-label="Menu"
-          @click="toggleLeftDrawer"
-        />
-
-        <q-toolbar-title>
-          Quasar App
-        </q-toolbar-title>
-
-        <div>Quasar v{{ $q.version }}</div>
+    <!-- Header -->
+    <q-header style="background-color: #404040; color: white;">
+      <q-toolbar >
+        <div class="header-left">
+          <q-btn class="menu-btn" dense round
+            flat
+            icon="menu"
+            aria-label="Menu"
+            @click="toggleLeftDrawer"
+          />
+        </div>
+        <div class="header-center">
+          <q-toolbar-title>
+            <span class="app-title">Locadora de Livros </span>
+          </q-toolbar-title>
+        </div>
+        
+        <div class="header-right" style=" widows: 10%; margin-top: 1%; font-size: 2.5vh; color: rgba(159, 252, 255, 1);">
+          <div>admin</div>
+        </div>
       </q-toolbar>
     </q-header>
 
+    <!-- Drawer (Menu Lateral) -->
     <q-drawer
       v-model="leftDrawerOpen"
       show-if-above
-      bordered
+      class="drawer-main"
+      :width="200"
+      style="background-color: #404040; color: white"
     >
-      <q-list>
-        <q-item-label
-          header
-        >
-          Essential Links
-        </q-item-label>
-
-        <EssentialLink
-          v-for="link in linksList"
-          :key="link.title"
-          v-bind="link"
-        />
+      <div class="logoWDAALL">
+        <img :src="logo" alt="Logo WDA" />
+      </div>
+      <q-list class="drawer-list">
+        <div class="drawer-links">
+          <EssentialLink
+            v-for="link in linksList"
+            :key="link.title"
+            v-bind="link"
+          />
+        </div>
       </q-list>
     </q-drawer>
-
     <q-page-container>
       <router-view />
     </q-page-container>
+
   </q-layout>
 </template>
 
 <script setup>
-import { ref } from 'vue'
-import EssentialLink from 'components/EssentialLink.vue'
+import { ref } from "vue";
+import EssentialLink from "components/EssentialLink.vue";
+import logo from "src/assets/image.png";
 
 defineOptions({
-  name: 'MainLayout'
-})
+  name: "MainLayout",
+});
 
 const linksList = [
   {
-    title: 'Docs',
-    caption: 'quasar.dev',
-    icon: 'school',
-    link: 'https://quasar.dev'
+    title: "Dashboard",
+    link: "/dashboard",
+    style: "padding-top: 7%; padding-bottom: 7%;",
   },
   {
-    title: 'Github',
-    caption: 'github.com/quasarframework',
-    icon: 'code',
-    link: 'https://github.com/quasarframework'
+    title: "Locatário",
+    link: "/locatario",
+    style: "padding-top: 7%; padding-bottom: 7%;",
   },
   {
-    title: 'Discord Chat Channel',
-    caption: 'chat.quasar.dev',
-    icon: 'chat',
-    link: 'https://chat.quasar.dev'
+    title: "Editoras",
+    link: "/editoras",
+    style: "padding-top: 7%; padding-bottom: 7%;",
   },
   {
-    title: 'Forum',
-    caption: 'forum.quasar.dev',
-    icon: 'record_voice_over',
-    link: 'https://forum.quasar.dev'
+    title: "Livros",
+    link: "/livros",
+    style: "padding-top: 7%; padding-bottom: 7%;",
   },
   {
-    title: 'Twitter',
-    caption: '@quasarframework',
-    icon: 'rss_feed',
-    link: 'https://twitter.quasar.dev'
+    title: "Aluguéis",
+    link: "/aluguéis",
+    style: "padding-top: 7%; padding-bottom: 7%;",
   },
   {
-    title: 'Facebook',
-    caption: '@QuasarFramework',
-    icon: 'public',
-    link: 'https://facebook.quasar.dev'
+    title: "Usuários",
+    link: "/usuário",
+    style: "padding-top: 7%; padding-bottom: 7%;",
   },
   {
-    title: 'Quasar Awesome',
-    caption: 'Community Quasar projects',
-    icon: 'favorite',
-    link: 'https://awesome.quasar.dev'
-  }
-]
+    title: "Logout",
+    link: "src/pages/LoginPage.vue",
+    style: "padding-top: 7%; padding-bottom: 7%;",
+  },
+];
 
-const leftDrawerOpen = ref(false)
+const leftDrawerOpen = ref(false);
 
-function toggleLeftDrawer () {
-  leftDrawerOpen.value = !leftDrawerOpen.value
+function toggleLeftDrawer() {
+  leftDrawerOpen.value = !leftDrawerOpen.value;
 }
+
+
+
+
 </script>
