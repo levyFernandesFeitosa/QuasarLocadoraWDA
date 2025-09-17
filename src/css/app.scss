@@ -14,7 +14,7 @@ img{
 .q-list{
     width: 100%;
     min-width: 10%;
-    font-size: 3.3vh;
+    font-size: 3vh;;
     font-family:'Merriweather', serif;
 }
 .header-left {
@@ -56,7 +56,15 @@ img{
     width: 10% !important;
     height: 10% !important;
 }
-
+.MenuBTN{
+    background-color: rgba(159, 252, 255, 1) !important;
+    color: rgb(0, 0, 0) !important;
+    font-size: 2vh !important;
+    border-radius: 1vh !important;
+    margin-bottom: 5%;
+    width: 100% !important;
+    height: 100% !important;
+}
 .titulo{
   margin-right: 50%;
   display: flex;
@@ -85,9 +93,35 @@ img{
 }
 
 .inputModal .q-field__native,
-.inputModal .q-field__label {
+.inputModal .q-field__label, 
+.inputModalSelect .q-field__native,
+.inputModalSelect .q-field__label {
   color: white !important;
 }
+.inputModalSelect {
+  width: 40% !important;   
+  max-width: 100% !important;
+}
+
+.inputModal .q-field__control,
+.inputModalSelect .q-field__control {
+  background-color: transparent !important; /* igual ao input */
+  border: 1px solid rgba(255, 255, 255, 0.5); /* borda branca */
+  border-radius: 8px;
+  color: white !important;
+}
+
+.inputModal.q-field--focused .q-field__control,
+.inputModalSelect.q-field--focused .q-field__control {
+  border-color: #0a4d3c !important; /* mesma cor quando focado */
+  background-color: rgba(255, 255, 255, 0.05) !important;
+}
+
+/* Texto dentro do dropdown */
+.q-menu .q-item {
+  color: black !important; /* lista legível */
+}
+
 .modalCertificando{
     
     width: 60% !important;
@@ -116,15 +150,6 @@ img{
     align-items: center;
     justify-content: center;
     gap: 2vh;
-    width: 100%;
-    height: 100%;
-    
-}
-.conteudoModalLivros{
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
     width: 100%;
     height: 100%;
     

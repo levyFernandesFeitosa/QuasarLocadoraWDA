@@ -40,14 +40,14 @@ const routes = [
     ]
   },
   {
-    path: '/aluguéis',
+    path: '/alugueis',
     component: () => import('layouts/MainLayout.vue'),
     children: [
       { path: '', component: () => import('src/pages/AlugueisPage.vue') }
     ]
   },
   {
-    path: '/usuário',
+    path: '/usuario',
     component: () => import('layouts/MainLayout.vue'),
     children: [
       { path: '', component: () => import('src/pages/UsuárioPage.vue') }

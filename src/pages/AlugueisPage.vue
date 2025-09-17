@@ -3,8 +3,8 @@
     <div class="q-mb-md flex items-center justify-between">
       <div class="q-mb-md flex items-center" style="flex-grow: 1;">
         <div class="titulo q-mb-sm flex items-center">
-          <q-icon name="people" size="32px" class="q-mr-sm" color="primary" />
-          Locatários
+          <q-icon name="event" size="32px" class="q-mr-sm" color="primary" />
+          Aluguéis
         </div>
         <q-btn
           class="CadastroBTN"
@@ -17,7 +17,7 @@
           rounded
           standout
           v-model="pesquisa"
-          label="Pesquisar locatário"
+          label="Pesquisar Aluguéis"
           :dense="true"
           style="width: 19%; height: 100%; margin-left: 16px;"
         >
@@ -69,37 +69,29 @@
 
     <!-- Modal Cadastro -->
     <q-dialog v-model="modalCadastro">
-      <q-card class="modal">
+      <q-card class="modal" style="height: 70%;">
         <q-card-section class="conteudoModal">
           <div class="tituloModal">Cadastrar Locatário</div>
           <q-input class="inputModal" outlined v-model="novoAluguel.livro" label="Livro" required />
           <q-input class="inputModal" outlined v-model="novoAluguel.locatario" label="Locatário" required />
           <q-input
             class="inputModal" outlined
-            v-model="novoAluguel.dataRetirada"
-            label="Data de Retirada"
+            v-model="novoAluguel.prazo"
+            label="Dias de Aluguel"
             type="date"
             required
           />
-          <q-input
-            class="inputModal" outlined
-            v-model="novoAluguel.dataDevolucao"
-            label="Data de Devolução"
-            type="date"
-            required
-          />
-          <q-input class="inputModal" outlined v-model="novoAluguel.status" label="Status" required />
         </q-card-section>
         <q-card-actions class="botoesModal">
           <q-btn class="modalBTN" label="Cadastrar" color="primary" @click="cadastrarAluguel" />
-          <q-btn class="modalBTN" label="Cancelar" flat @click="modalCadastro = false" />
+          <q-btn class="modalBTN" label="Cancelar" @click="modalCadastro = false" />
         </q-card-actions>
       </q-card>
     </q-dialog>
 
     <!-- Modal Editar -->
     <q-dialog v-model="modalEditar">
-      <q-card class="modal">
+      <q-card class="modal" style="height: 70%;">
         <q-card-section class="conteudoModal">
           <div class="tituloModal">Atualizar Locatário</div>
           <q-input class="inputModal" outlined v-model="aluguelEditar.livro" label="Livro" required />
@@ -111,23 +103,15 @@
           />
           <q-input
             class="inputModal" outlined
-            v-model="aluguelEditar.dataRetirada"
-            label="Data de Retirada"
+            v-model="aluguelEditar.prazo"
+            label="Dias de Aluguel"
             type="date"
             required
           />
-          <q-input
-            class="inputModal" outlined
-            v-model="aluguelEditar.dataDevolucao"
-            label="Data de Devolução"
-            type="date"
-            required
-          />
-          <q-input class="inputModal" outlined v-model="aluguelEditar.status" label="Status" required />
         </q-card-section>
         <q-card-actions class="botoesModal">
           <q-btn class="modalBTN" label="Atualizar" color="primary" @click="atualizarAluguel" />
-          <q-btn class="modalBTN" label="Fechar" flat @click="modalEditar = false" />
+          <q-btn class="modalBTN" label="Fechar" @click="modalEditar = false" />
         </q-card-actions>
       </q-card>
     </q-dialog>
@@ -268,10 +252,3 @@ function excluirAluguel() {
   modalExcluir.value = false;
 }
 </script>
-
-<style scoped>
-.q-page {
-  max-width: 1200px;
-  margin: 0 auto;
-}
-</style>

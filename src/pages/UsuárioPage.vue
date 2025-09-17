@@ -3,8 +3,8 @@
     <div class="q-mb-md flex items-center justify-between">
       <div class="q-mb-md flex items-center" style="flex-grow: 1;">
         <div class="titulo q-mb-sm flex items-center">
-          <q-icon name="people" size="32px" class="q-mr-sm" color="primary" />
-          Locatários
+          <q-icon name="manage_accounts" size="32px" class="q-mr-sm" color="primary" />
+          Usuários
         </div>
         <q-btn
           class="CadastroBTN"
@@ -17,7 +17,7 @@
           rounded
           standout
           v-model="pesquisa"
-          label="Pesquisar locatário"
+          label="Pesquisar Usuários"
           :dense="true"
           style="width: 19%; height: 100%; margin-left: 16px;"
         >
@@ -68,7 +68,7 @@
 
     <!-- Modal Cadastro -->
     <q-dialog v-model="modalCadastro">
-      <q-card class="modal">
+      <q-card class="modal" style="height: 80%;">
         <q-card-section class="conteudoModal">
           <div class="tituloModal">Cadastrar Locatário</div>
           <q-input
@@ -85,15 +85,8 @@
             type="password"
             required
           />
-          <q-input
-            class="inputModal" outlined
-            v-model="novoUsuario.confirmarSenha"
-            label="Confirmar Senha"
-            type="password"
-            required
-          />
           <q-select
-            class="inputModal" outlined
+            class="inputModalSelect" outlined
             v-model="novoUsuario.tipo"
             :options="['USER', 'ADMIN']"
             label="Tipo de Usuário"
@@ -132,7 +125,7 @@
             type="password"
           />
           <q-select
-            class="inputModal" outlined
+            class="inputModalSelect" outlined
             v-model="usuarioEditar.tipo"
             :options="['USER', 'ADMIN']"
             label="Tipo de Usuário"
@@ -177,7 +170,6 @@ const usuarios = ref([
 ]);
 
 const columns = [
-  { name: "id", label: "Id", field: "id", align: "left" },
   { name: "nome", label: "Nome do Usuário", field: "nome", align: "left" },
   { name: "email", label: "Email", field: "email", align: "left" },
   { name: "tipo", label: "Permições", field: "tipo", align: "left" },
@@ -211,7 +203,7 @@ function abrirModalCadastro() {
   modalCadastro.value = true;
 }
 function cadastrarUsuario() {
-  if (novoUsuario.value.senha !== novoUsuario.value.confirmarSenha) {
+  if (novoUsuario.value.senha = null) {
     // Adicione sua lógica de validação aqui
     return;
   }
@@ -266,6 +258,3 @@ function excluirUsuario() {
   modalExcluir.value = false;
 }
 </script>
-
-<style scoped>
-</style>

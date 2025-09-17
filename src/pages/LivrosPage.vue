@@ -3,7 +3,7 @@
     <div class="q-mb-md flex items-center justify-between">
       <div class="q-mb-md flex items-center" style="flex-grow: 1">
         <div class="titulo q-mb-sm flex items-center">
-          <q-icon name="book" size="32px" class="q-mr-sm" color="primary" />
+          <q-icon name="menu_book" size="32px" class="q-mr-sm" color="primary" />
           Livros
         </div>
         <q-btn
@@ -17,7 +17,7 @@
           rounded
           standout
           v-model="pesquisa"
-          label="Pesquisar Editoras"
+          label="Pesquisar Livros"
           :dense="true"
           style="width: 20%; height: 100%; margin-left: 16px;"
         >
@@ -71,13 +71,12 @@
     <!-- Modal Cadastro -->
     <q-dialog v-model="modalCadastro">
       <q-card class="modal">
-        <q-card-section class="conteudoModalLivros">
+        <q-card-section class="conteudoModal">
           <div class="tituloModal">Cadastrar Livro</div>
           <q-input class="inputModal" outlined v-model="novoLivro.titulo" label="Título do Livro" required />
           <q-input class="inputModal" outlined v-model="novoLivro.autor" label="Autor" required />
           <q-input class="inputModal" outlined v-model="novoLivro.dataLancada" label="Data de Lançamento" required />
           <q-input class="inputModal" outlined v-model="novoLivro.disponivel" label="Disponível" required />
-          <q-input class="inputModal" outlined v-model="novoLivro.alugados" label="Alugados" required />
           <q-input class="inputModal" outlined v-model="novoLivro.editora" label="Editora" required />
         </q-card-section>
         <q-card-actions class="botoesModal">
@@ -90,13 +89,12 @@
     <!-- Modal Editar -->
     <q-dialog v-model="modalEditar">
       <q-card class="modal">
-        <q-card-section class="conteudoModalLivros">
+        <q-card-section class="conteudoModal">
           <div class="tituloModal">Atualizar Livro</div>
           <q-input class="inputModal" v-model="livroEditar.titulo" label="Título" required />
           <q-input class="inputModal" v-model="livroEditar.autor" label="Autor" required />
           <q-input class="inputModal" v-model="livroEditar.dataLancada" label="Data de Lançamento" required />
           <q-input class="inputModal" v-model="livroEditar.disponivel" label="Disponível" required />
-          <q-input class="inputModal" v-model="livroEditar.alugados" label="Alugados" required />
           <q-input class="inputModal" v-model="livroEditar.editora" label="Editora" required />
         </q-card-section>
         <q-card-actions class="botoesModal">
@@ -162,7 +160,6 @@ const livros = ref([
 ]);
 
 const columns = [
-  { name: "id", label: "ID", field: "id", align: "left" },
   { name: "titulo", label: "Título", field: "titulo", align: "left" },
   { name: "autor", label: "Autor", field: "autor", align: "left" },
   { name: "dataLancada", label: "Data de Lançamento", field: "dataLancada", align: "left" },
