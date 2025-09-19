@@ -24,30 +24,20 @@
           <q-btn-dropdown
             class="MenuBTN"
             color="purple"
-            label="Account Settings"
+            label="Usuário"
+            content-class="menu-transparente"
           >
-            <div class="row no-wrap q-pa-md" style="background-color: blueviolet;">
-              <div class="column">
-                <div class="text-h6 q-mb-md">Settings</div>
-                <q-toggle v-model="mobileData" label="Use Mobile Data" />
-                <q-toggle v-model="bluetooth" label="Bluetooth" />
-              </div>
-
-              <q-separator vertical inset class="q-mx-lg" />
-
-              <div class="column items-center">
-                <q-avatar size="72px">
-                  <img src="https://cdn.quasar.dev/img/boy-avatar.png" />
-                </q-avatar>
-
-                <div class="text-subtitle1 q-mt-md q-mb-xs">John Doe</div>
-
+            <div class="modalMenu  q-pa-md">
+              <div class="colomn q-pr-lg">
+                <div class="text-h5 q-mb-md">Informações:</div>
+                <div class="info">👤 Nome do Usuário: <span>Caio Cesar</span></div>
+                <div class="info">📧 Email: <span>admin@gmail.com</span></div>
+                <div class="info">🔑 Permissão: <span>ADMIN</span></div>
                 <q-btn
+                  class="MenuBTN" id="MenuBTN"
                   color="primary"
                   label="Logout"
-                  push
-                  size="sm"
-                  v-close-popup
+                  href="src/pages/LoginPage.vue"
                 />
               </div>
             </div>
