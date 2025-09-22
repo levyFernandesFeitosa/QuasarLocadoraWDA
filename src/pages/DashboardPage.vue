@@ -37,15 +37,16 @@
       </div>
 
       <!-- Tabela de Locatários -->
-      <div class="dashboard-extra">
+      <div class="dashboard-extra"  >
         <q-table
+        
           :rows="rows"
           :columns="columns"
           row-key="name"
           :rows-per-page-options="[2]"
         >
           <!-- Cabeçalho customizado -->
-          <template v-slot:header="props">
+          <template v-slot:header="props" >
             <q-tr :props="props" class="linha-destacada">
               <q-th v-for="col in props.cols" :key="col.name" :props="props">
                 {{ col.label }}
@@ -147,7 +148,7 @@ onMounted(() => {
 .dashboard {
   display: flex;
   flex-direction: column;
-  gap: 32px;
+  gap: 2vh;
 }
 
 .stats {
@@ -157,13 +158,10 @@ onMounted(() => {
 .dashboard-grid {
   display: flex;
   flex-wrap: wrap;
-  gap: 24px;
+  
 }
 
-.card,
-.card-total {
-  min-height: 40%;
-}
+
 
 .cards-coluna {
   display: flex;

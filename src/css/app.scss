@@ -35,7 +35,7 @@ img{
 .app-title{
     margin-left: 2%;
     font-size: 3.5vh;
-    color: rgba(159, 252, 255, 1);
+    color: #00bfa6;
     font-weight: bold;
 }
 .pesquisaALL .q-field__control {
@@ -43,13 +43,13 @@ img{
   transition: background 0.2s;
 }
 .pesquisaALL.q-field--focused .q-field__control {
-  background-color: #b2ebf2 !important; /* cor quando focado */
+  background-color: #d5ffff !important; /* cor quando focado */
   color: black !important;
 }
 .CadastroBTN{
-    background-color: #0a4d3c !important;
+    background-color: #005f52 !important;
     color: white !important;
-    font-size: 2.5vh !important;
+    font-size: 2vh !important;
     margin-left: 2%;
     margin-bottom: 2%;
     border-radius: 1vh !important;
@@ -57,8 +57,8 @@ img{
     height: 10% !important;
 }
 .MenuBTN{
-    background-color: rgba(159, 252, 255, 1) !important;
-    color: rgb(0, 0, 0) !important;
+    background-color: #00bfa6 !important;
+    color: #f5f5f5 !important;
     font-size: 2vh !important;
     border-radius: 1vh !important;
     margin-bottom: 5%;
@@ -70,12 +70,14 @@ img{
     
 }
 .titulo{
-  margin-right: 50%;
+  margin-right: 45%;
+  width: 20%;
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 5vh;
   font-weight: bold;
+  color: #f5f5f5;
 }
 
 
@@ -91,7 +93,7 @@ img{
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    background-color: #404040;
+    background-color: #1e1e2f;
     
 
 }
@@ -100,7 +102,7 @@ img{
 .inputModal .q-field__label, 
 .inputModalSelect .q-field__native,
 .inputModalSelect .q-field__label {
-  color: white !important;
+  color: #f5f5f5 !important;
 }
 .inputModalSelect {
   width: 40% !important;   
@@ -112,13 +114,13 @@ img{
   background-color: transparent !important; /* igual ao input */
   border: 1px solid rgba(255, 255, 255, 0.5); /* borda branca */
   border-radius: 8px;
-  color: white !important;
+  color: #f5f5f5!important;
 }
 
 .inputModal.q-field--focused .q-field__control,
 .inputModalSelect.q-field--focused .q-field__control {
-  border-color: #0a4d3c !important; /* mesma cor quando focado */
-  background-color: rgba(255, 255, 255, 0.05) !important;
+  border-color: #008876 !important; /* mesma cor quando focado */
+  background-color: #1e1e2f !important;
 }
 
 /* Texto dentro do dropdown */
@@ -137,8 +139,8 @@ img{
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    color: white;
-    background: #404040;
+    color: #f5f5f5;
+    background: #1e1e2f;
 
     
 
@@ -161,7 +163,7 @@ img{
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    color: white; /* muda pra branco pra contrastar com fundo escuro */
+    color: #f5f5f5; /* muda pra branco pra contrastar com fundo escuro */
     background: rgba(0, 0, 0, 0.6); /* preto com 60% de opacidade */
     backdrop-filter: blur(10px); /* efeito glassmorphism */
     box-shadow: 0 8px 24px rgba(0,0,0,0.4);
@@ -174,7 +176,7 @@ img{
     font-size: 20px;
     font-weight: bold;
     margin-bottom: 12px;
-    color: #ffffff; /* combina com fundo escuro */
+    color: #1e1e2f; /* combina com fundo escuro */
 }
 
 .modalMenu .info {
@@ -217,7 +219,7 @@ img{
     
 }
 .modalBTN{
-    background-color: #0a4d3c !important;
+    background-color: #005f52 !important;
     color: white !important;
     font-size: 2.5vh !important;
     border-radius: 1vh !important;
@@ -225,7 +227,7 @@ img{
     height: 20% !important;
 }
 .linha-destacada {
-  background-color: #404040;
+  background-color: #1e1e2f;
   color: white;
 }
 
@@ -234,11 +236,15 @@ img{
 .dashboard-grid {
   display: grid;
   grid-template-columns: 2fr 2fr 1fr; /* pizza | barras | totais */
-  gap: 2vh;
   width: 100%;
   height: 100%;
   align-items: stretch;
+  background-color: #00bfa6;
+  gap: 2%;
+  border-radius: 2vh;
+  padding: 1%;
 }
+
 
 /* === CARDS DE GRÁFICO === */
 .card {
@@ -249,8 +255,9 @@ img{
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  width: 38.5%;
-  height: 300px;
+  width: 35%;
+  height: 30%;
+  
   
 }
 
@@ -264,7 +271,8 @@ img{
 .cards-coluna {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  width: 26%;
+  min-height: 10%;
 }
 
 .card-total {
@@ -273,11 +281,11 @@ img{
   justify-content: center;
   align-items: center;
   flex-direction: column;
-  font-size: 3vh;
+  font-size: 2vh;
   font-weight: bold;
   text-align: center;
-  background-color: #0a4d3c;
-  color: white;
+  background-color: #00362f;
+  color: #ececec ;
   border-radius: 1vh;
 }
 

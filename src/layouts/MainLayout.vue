@@ -1,7 +1,7 @@
 <template>
   <q-layout view="lHh Lpr lFf">
     <!-- Header -->
-    <q-header style="background-color: #404040; color: white">
+    <q-header style="background-color: #1e1e2f; color: white">
       <q-toolbar>
         <div class="header-left">
           <q-btn
@@ -52,10 +52,10 @@
       show-if-above
       class="drawer-main"
       :width="200"
-      style="background-color: #404040; color: white"
+      style="background-color: #1e1e2f; color: white"
     >
       <div class="logoWDAALL">
-        <img :src="logo" alt="Logo WDA" />
+        <img :src="logo" alt="WDA GROUP LOGO.png" />
       </div>
       <q-list class="drawer-list">
         <div class="drawer-links">
