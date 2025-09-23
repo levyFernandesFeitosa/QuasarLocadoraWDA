@@ -44,6 +44,13 @@
           :columns="columns"
           row-key="name"
           :rows-per-page-options="[2]"
+          :pagination="{
+            page: 1,
+            rowsPerPage: 
+              $q.screen.md ? 2 : 
+              $q.screen.lg ? 7 : 
+              7
+          }"
         >
           <!-- Cabeçalho customizado -->
           <template v-slot:header="props" >

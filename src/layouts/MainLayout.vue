@@ -51,7 +51,12 @@
       v-model="leftDrawerOpen"
       show-if-above
       class="drawer-main"
-      :width="200"
+      :width="
+        $q.screen.xs ? 180 : 
+        $q.screen.sm ? 220 : 
+        $q.screen.md ? 200 : 
+        $q.screen.lg ? 300 : 
+        300"
       style="background-color: #1e1e2f; color: white"
     >
       <div class="logoWDAALL">

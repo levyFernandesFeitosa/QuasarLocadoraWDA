@@ -1,7 +1,7 @@
 <template >
   <q-page class="q-pa-md" style="background-color: #f0ffff;">
     <div class="q-mb-md flex items-center justify-between">
-      <div class="q-mb-md flex items-center" style="flex-grow: 1; width: 100%; background-color: #00bfa6; padding: 1%; padding-top: 2%; border-radius: 2vh;" >
+      <div class="q-mb-md flex items-center" style="flex-grow: 1; width: 100%; height: 10% !important; background-color: #00bfa6; border-radius: 2vh;" >
         <div class="titulo q-mb-sm flex items-center" >
           <q-icon name="people" size="32px" class="q-mr-sm" color="primary" />
           Locatários
@@ -34,6 +34,13 @@
       :columns="columns"
       row-key="id"
       :rows-per-page-options="[5]"
+      :pagination="{
+            page: 1,
+            rowsPerPage: 
+              $q.screen.md ? 5 : 
+              $q.screen.lg ? 7 : 
+              7
+          }"
     >
       <template v-slot:header="props">
         <q-tr :props="props" class="linha-destacada">
@@ -71,7 +78,7 @@
 
     <!-- Modal Cadastro -->
     <q-dialog v-model="modalCadastro">
-      <q-card class="modal">
+      <q-card class="modal .col-md-12 .col-xl-12 ">
         <q-card-section class="conteudoModal">
           <div class="tituloModal">Cadastrar Locatário</div>
           <q-input

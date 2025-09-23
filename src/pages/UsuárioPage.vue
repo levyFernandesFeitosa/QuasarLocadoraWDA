@@ -1,7 +1,7 @@
 <template>
   <q-page class="q-pa-md" style="background-color: #f0ffff;">
     <div class="q-mb-md flex items-center justify-between">
-      <div class="q-mb-md flex items-center" style="flex-grow: 1; width: 100%; background-color: #d5ffff; padding: 1%; padding-top: 2%; border-radius: 2vh;" >
+      <div class="q-mb-md flex items-center" style="flex-grow: 1; width: 100%; background-color: #00bfa6; padding: 1%; padding-top: 2%; border-radius: 2vh;" >
         <div class="titulo q-mb-sm flex items-center">
           <q-icon name="manage_accounts" size="32px" class="q-mr-sm" color="primary" />
           Usuários
