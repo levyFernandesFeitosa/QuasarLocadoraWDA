@@ -43,10 +43,11 @@
           :rows="rows"
           :columns="columns"
           row-key="name"
-          :rows-per-page-options="[2]"
+          :rows-per-page-options="[0]"
           :pagination="{
             page: 1,
-            rowsPerPage: 
+            rowsPerPage:
+              $q.screen.sm ? 0 : 
               $q.screen.md ? 2 : 
               $q.screen.lg ? 7 : 
               7

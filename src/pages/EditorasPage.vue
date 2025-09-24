@@ -1,7 +1,7 @@
 <template>
   <q-page class="q-pa-md" style="background-color: #f0ffff;">
     <div class="q-mb-md flex items-center justify-between" >
-      <div class="q-mb-md flex items-center" style="flex-grow: 1; width: 100%; background-color: #00bfa6; padding: 1%; padding-top: 2%; border-radius: 2vh;" >
+      <div class="q-mb-md flex items-center" style="flex-grow: 1; width: 100%; height: 10% !important; background-color: #00bfa6; border-radius: 2vh;" >
         <div class="titulo q-mb-sm flex items-center">
           <q-icon name="library_books" size="32px" class="q-mr-sm" color="primary" />
           Editoras
@@ -19,7 +19,7 @@
           v-model="pesquisa"
           label="Pesquisar Editoras"
           :dense="true"
-          style="width: 20%; height: 100%; margin-left: 16px;"
+          style="width: 20%; height: 100%;"
         >
           <template v-slot:append>
             <q-icon name="search" />

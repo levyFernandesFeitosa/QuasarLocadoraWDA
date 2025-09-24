@@ -24,7 +24,7 @@
           <q-btn-dropdown
             class="MenuBTN"
             color="purple"
-            label="Usuário"
+            :label="$q.screen.xs ? 'U' : 'Usuário'"
             content-class="menu-transparente"
           >
             <div class="modalMenu  q-pa-md">
