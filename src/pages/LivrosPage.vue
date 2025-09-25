@@ -1,30 +1,42 @@
 <template>
   <q-page class="q-pa-md" style="background-color: #f0ffff;">
-    <div class="q-mb-md flex items-center justify-between">
-      <div class="q-mb-md flex items-center" style="flex-grow: 1; width: 100%; height: 10% !important; background-color: #00bfa6; border-radius: 2vh;" >
-        <div class="titulo q-mb-sm flex items-center">
-          <q-icon name="menu_book" size="32px" class="q-mr-sm" color="primary" />
-          Livros
+    <div class="q-pa-md example-row-column-width" style="background-color: #00bfa6; margin-bottom: 2%; border-radius: 4vh;">
+
+      <div class="row items-center q-col-gutter-sm">
+
+        <!-- Título: ocupa a linha toda no mobile, só metade no desktop -->
+        <div class="col-12 col-md-6">
+          <div class="titulo q-mb-sm flex items-center">
+            <q-icon name="people" size="32px" class="q-mr-sm" color="primary" />
+            Livros
+          </div>
         </div>
-        <q-btn
-          class="CadastroBTN"
-          label="Cadastrar"
-          color="primary"
-          @click="abrirModalCadastro"
-        />
-        <q-input
-          class="pesquisaALL"
-          rounded
-          standout
-          v-model="pesquisa"
-          label="Pesquisar Livros"
-          :dense="true"
-          style="width: 20%; height: 100%;"
-        >
-          <template v-slot:append>
-            <q-icon name="search" />
-          </template>
-        </q-input>
+
+        <!-- Botão -->
+        <div class="col-6 col-md-2">
+          <q-btn
+            class="CadastroBTN"
+            label="Cadastrar"
+            color="primary"
+            @click="abrirModalCadastro"
+          />
+        </div>
+
+        <!-- Input -->
+        <div class="col-6 col-md-4">
+          <q-input
+            class="pesquisaALL"
+            rounded
+            standout
+            v-model="pesquisa"
+            label="Pesquisar Livros"
+            :dense="true"
+          >
+            <template v-slot:append>
+              <q-icon name="search" />
+            </template>
+          </q-input>
+        </div>
 
       </div>
     </div>

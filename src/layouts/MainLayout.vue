@@ -1,7 +1,7 @@
 <template>
   <q-layout view="lHh Lpr lFf">
     <!-- Header -->
-    <q-header style="background-color: #1e1e2f; color: white">
+    <q-header style="background-color: #303030; color: white">
       <q-toolbar>
         <div class="header-left">
           <q-btn
@@ -24,7 +24,7 @@
           <q-btn-dropdown
             class="MenuBTN"
             color="purple"
-            :label="$q.screen.xs ? 'U' : 'Usuário'"
+            :label="$q.screen.xs ? 'Eu' : 'Usuário'"
             content-class="menu-transparente"
           >
             <div class="modalMenu  q-pa-md">
@@ -57,17 +57,18 @@
         $q.screen.md ? 200 : 
         $q.screen.lg ? 300 : 
         300"
-      style="background-color: #1e1e2f; color: white"
+      style="background-color: #303030; color: white"
     >
       <div class="logoWDAALL">
         <img :src="logo" alt="WDA GROUP LOGO.png" />
       </div>
-      <q-list class="drawer-list">
-        <div class="drawer-links">
+      <q-list class="drawer-list" >
+        <div class="drawer-links" >
           <EssentialLink
             v-for="link in linksList"
             :key="link.title"
             v-bind="link"
+            
           />
         </div>
       </q-list>

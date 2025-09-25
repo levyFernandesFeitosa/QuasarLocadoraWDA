@@ -1,48 +1,59 @@
 <template >
-  <q-page class="q-pa-md" style="background-color: #f0ffff;">
-    <div class="q-mb-md flex items-center justify-between">
-      <div class="q-mb-md flex items-center" style="flex-grow: 1; width: 100%; height: 10% !important; background-color: #00bfa6; border-radius: 2vh;" >
-        <div class="titulo q-mb-sm flex items-center" >
-          <q-icon name="people" size="32px" class="q-mr-sm" color="primary" />
-          Locatários
+  <q-page class="q-pa-md" style="background-color: #edead0">
+    <div
+      class="q-pa-md example-row-column-width"
+      style="background-color: #274e55; margin-bottom: 2%; border-radius: 2vh"
+    >
+      <div class="row items-center q-col-gutter-sm">
+        <!-- Título: ocupa a linha toda no mobile, só metade no desktop -->
+        <div class="col-12 col-md-6">
+          <div class="titulo q-mb-sm flex items-center">
+            <q-icon name="people" size="32px" class="q-mr-sm" color="primary" />
+            Locatários
+          </div>
         </div>
-        <q-btn
-          class="CadastroBTN"
-          label="Cadastrar"
-          color="primary"
-          @click="abrirModalCadastro"
-        />
-        <q-input
-          class="pesquisaALL"
-          rounded
-          standout
-          v-model="pesquisa"
-          label="Pesquisar locatário"
-          :dense="true"
-          style="width: 20%; height: 100%"
-        >
-          <template v-slot:append>
-            <q-icon name="search" />
-          </template>
-        </q-input>
+
+        <!-- Botão -->
+        <div class="col-6 col-md-2">
+          <q-btn
+            class="CadastroBTN"
+            label="Cadastrar"
+            color="primary"
+            @click="abrirModalCadastro"
+          />
+        </div>
+
+        <!-- Input -->
+        <div class="col-6 col-md-4">
+          <q-input
+            class="pesquisaALL"
+            standout
+            v-model="pesquisa"
+            label="Pesquisar locatário"
+            
+          >
+            <template v-slot:append>
+              <q-icon name="search" />
+            </template>
+          </q-input>
+        </div>
       </div>
     </div>
-
 
     <q-table
       :rows="locatariosFiltrados"
       :columns="columns"
       row-key="id"
-      :rows-per-page-options="[5]"
+      :rows-per-page-options="$q.screen.lt.md ? [] : [5, 10, 20]"
       :pagination="{
-            page: 1,
-            rowsPerPage: 
-              $q.screen.md ? 5 : 
-              $q.screen.lg ? 7 : 
-              7
-          }"
+        page: 1,
+        rowsPerPage: $q.screen.lt.md ? 0 : 5,
+      }"
+      flat
+      bordered
     >
-      <template v-slot:header="props">
+      <!-- Cabeçalho e corpo normais no desktop -->
+      <template v-slot:header="props" v-if="!$q.screen.lt.md">
         <q-tr :props="props" class="linha-destacada">
           <q-th v-for="col in props.cols" :key="col.name" :props="props">
             {{ col.label }}
@@ -50,13 +61,48 @@
           <q-th>Ações</q-th>
         </q-tr>
       </template>
-      <template v-slot:body="props">
+
+      <template v-slot:body="props" v-if="!$q.screen.lt.md">
         <q-tr :props="props">
           <q-td v-for="col in props.cols" :key="col.name" :props="props">
             {{ col.value }}
           </q-td>
-          <q-td>
-            
+          <q-td style="padding-left: 4%;">
+            <q-btn
+              dense
+              flat
+              icon="edit"
+              color="positive"
+              @click="editarLocatario(props.row)"
+            />
+            <q-btn
+              dense
+              flat
+              icon="delete"
+              color="negative"
+              @click="confirmarExcluir(props.row)"
+            />
+          </q-td>
+        </q-tr>
+      </template>
+
+      <!-- Versão mobile em formato de card -->
+      <template v-slot:item="props" v-else>
+        <q-card class="q-mb-md card-mobile">
+          <q-card-section>
+            <div v-for="col in props.cols" :key="col.name" class="row q-mb-xs">
+              <div class="col-5 text-weight-bold text-primary">
+                {{ col.label }}
+              </div>
+              <div class="col-7">
+                {{ col.value }}
+              </div>
+            </div>
+          </q-card-section>
+
+          <q-separator />
+
+          <q-card-actions align="right">
             <q-btn
               dense
               flat
@@ -71,14 +117,14 @@
               color="negative"
               @click="confirmarExcluir(props.row)"
             />
-          </q-td>
-        </q-tr>
+          </q-card-actions>
+        </q-card>
       </template>
     </q-table>
 
     <!-- Modal Cadastro -->
     <q-dialog v-model="modalCadastro">
-      <q-card class="modal .col-md-12 .col-xl-12 ">
+      <q-card class="modal .col-md-12 .col-xl-12">
         <q-card-section class="conteudoModal">
           <div class="tituloModal">Cadastrar Locatário</div>
           <q-input
@@ -96,9 +142,27 @@
             type="email"
             required
           />
-          <q-input class="inputModal" outlined v-model="novoLocatario.telefone" label="Telefone" required />
-          <q-input class="inputModal" outlined v-model="novoLocatario.cpf" label="CPF" required />
-          <q-input class="inputModal" outlined v-model="novoLocatario.endereco" label="Endereço" required />
+          <q-input
+            class="inputModal"
+            outlined
+            v-model="novoLocatario.telefone"
+            label="Telefone"
+            required
+          />
+          <q-input
+            class="inputModal"
+            outlined
+            v-model="novoLocatario.cpf"
+            label="CPF"
+            required
+          />
+          <q-input
+            class="inputModal"
+            outlined
+            v-model="novoLocatario.endereco"
+            label="Endereço"
+            required
+          />
         </q-card-section>
         <q-card-actions class="botoesModal">
           <q-btn
@@ -140,7 +204,12 @@
             label="Telefone"
             required
           />
-          <q-input class="inputModal" v-model="locatarioEditar.cpf" label="CPF" required />
+          <q-input
+            class="inputModal"
+            v-model="locatarioEditar.cpf"
+            label="CPF"
+            required
+          />
           <q-input
             class="inputModal"
             v-model="locatarioEditar.endereco"
@@ -155,18 +224,14 @@
             color="primary"
             @click="atualizarLocatario"
           />
-          <q-btn
-            class="modalBTN"
-            label="Fechar"
-            @click="modalEditar = false"
-          />
+          <q-btn class="modalBTN" label="Fechar" @click="modalEditar = false" />
         </q-card-actions>
       </q-card>
     </q-dialog>
 
     <!-- Modal Confirmar Excluir -->
     <q-dialog v-model="modalExcluir">
-      <q-card class="modalCertificando" style="max-width: 35%; width: 100%;">
+      <q-card class="modalCertificando" style="max-width: 35%; width: 100%">
         <q-card-section class="conteudoModal">
           <div class="text-h6">Certeza que deseja excluir esse locatário?</div>
           <div class="text-h6">Após essa ação não haverá retorno.</div>
