@@ -1,13 +1,14 @@
 <template>
-  <q-page class="q-pa-md" style="background-color: #f0ffff;">
-    <div class="q-pa-md example-row-column-width" style="background-color: #00bfa6; margin-bottom: 2%; border-radius: 4vh;">
-
+  <q-page class="q-pa-md" style="background-color: #edead0">
+    <div
+      class="q-pa-md example-row-column-width"
+      style="background-color: #274e55; margin-bottom: 2%; border-radius: 2vh"
+    >
       <div class="row items-center q-col-gutter-sm">
-
         <!-- Título: ocupa a linha toda no mobile, só metade no desktop -->
         <div class="col-12 col-md-6">
           <div class="titulo q-mb-sm flex items-center">
-            <q-icon name="people" size="32px" class="q-mr-sm" color="primary" />
+            <q-icon name="event" size="32px" class="q-mr-sm" color="primary" />
             Alugueis
           </div>
         </div>
@@ -26,18 +27,16 @@
         <div class="col-6 col-md-4">
           <q-input
             class="pesquisaALL"
-            rounded
             standout
             v-model="pesquisa"
-            label="Pesquisar Alugueis"
-            :dense="true"
+            label="Pesquisar Aluguel"
+            
           >
             <template v-slot:append>
               <q-icon name="search" />
             </template>
           </q-input>
         </div>
-
       </div>
     </div>
 
@@ -184,27 +183,28 @@ const aluguéis = ref([
 ]);
 
 const columns = [
-  { name: "locatario", label: "Locatário", field: "locatario", align: "left" },
-  { name: "livro", label: "Livro", field: "livro", align: "left" },
+  { name: "locatario", label: "Locatário", field: "locatario", align: "left",  sortable: true },
+  { name: "livro", label: "Livro", field: "livro", align: "left",  sortable: true },
   {
     name: "DataPrazo",
     label: "Prazo",
     field: "DataPrazo",
     align: "left",
+    sortable: true
   },
   {
     name: "DataAlugado",
     label: "Alugado",
     field: "DataAlugado",
-    align: "left",
+    align: "left",  sortable: true
   },
   {
     name: "dataDevolucao",
     label: "Devolução",
     field: "dataDevolucao",
-    align: "left",
+    align: "left",  sortable: true
   },
-  { name: "status", label: "Status", field: "status", align: "left" },
+  { name: "status", label: "Status", field: "status", align: "left",  sortable: true },
 ];
 
 const aluguéisFiltrados = computed(() => {

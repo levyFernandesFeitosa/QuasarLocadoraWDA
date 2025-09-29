@@ -101,18 +101,18 @@ const rows = ref([
 ]);
 
 const columns = [
-  { name: "name", label: "Locatário", field: "name", align: "left" },
+  { name: "name", label: "Locatário", field: "name", align: "left", sortable: true },
   {
     name: "emprestimos",
     label: "Total de empréstimos",
     field: "emprestimos",
-    align: "center",
+    align: "center",  sortable: true
   },
   {
     name: "devolvidos",
     label: "Aluguéis Devolvidos",
     field: "devolvidos",
-    align: "center",
+    align: "center",  sortable: true
   },
 ];
 

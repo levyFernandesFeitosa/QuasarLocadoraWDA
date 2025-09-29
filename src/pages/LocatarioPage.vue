@@ -132,6 +132,9 @@
             outlined
             v-model="novoLocatario.nome"
             label="Nome do Locatário"
+            :error="errosCadastro.nome"
+            error-color="negative"
+            @input="validarCampo('nome')"
             required
           />
           <q-input
@@ -140,6 +143,9 @@
             v-model="novoLocatario.email"
             label="Email"
             type="email"
+            :error="errosCadastro.email"
+            error-color="negative"
+            @input="validarCampo('email')"
             required
           />
           <q-input
@@ -147,6 +153,9 @@
             outlined
             v-model="novoLocatario.telefone"
             label="Telefone"
+            :error="errosCadastro.telefone"
+            error-color="negative"
+            @input="validarCampo('telefone')"
             required
           />
           <q-input
@@ -154,6 +163,9 @@
             outlined
             v-model="novoLocatario.cpf"
             label="CPF"
+            :error="errosCadastro.cpf"
+            error-color="negative"
+            @input="validarCampo('cpf')"
             required
           />
           <q-input
@@ -161,6 +173,9 @@
             outlined
             v-model="novoLocatario.endereco"
             label="Endereço"
+            :error="errosCadastro.endereco"
+            error-color="negative"
+            @input="validarCampo('endereco')"
             required
           />
         </q-card-section>
@@ -189,6 +204,8 @@
             class="inputModal"
             v-model="locatarioEditar.nome"
             label="Nome do Locatário"
+            :color="errosCadastro.nome ? 'negative' : 'primary'"
+            error-message="Campo obrigatório"
             required
           />
           <q-input
@@ -196,24 +213,28 @@
             v-model="locatarioEditar.email"
             label="Email"
             type="email"
+            :error="errosCadastro.email"
             required
           />
           <q-input
             class="inputModal"
             v-model="locatarioEditar.telefone"
             label="Telefone"
+            :error="errosCadastro.telefone"
             required
           />
           <q-input
             class="inputModal"
             v-model="locatarioEditar.cpf"
             label="CPF"
+            :error="errosCadastro.cpf"
             required
           />
           <q-input
             class="inputModal"
             v-model="locatarioEditar.endereco"
             label="Endereço"
+            :error="errosCadastro.endereco"
             required
           />
         </q-card-section>
@@ -324,11 +345,11 @@ const locatarios = ref([
 ]);
 
 const columns = [
-  { name: "nome", label: "Nome", field: "nome", align: "left" },
-  { name: "email", label: "Email", field: "email", align: "left" },
-  { name: "telefone", label: "Telefone", field: "telefone", align: "left" },
-  { name: "cpf", label: "CPF", field: "cpf", align: "left" },
-  { name: "endereco", label: "Endereço", field: "endereco", align: "left" },
+  { name: "nome", label: "Nome", field: "nome", align: "left", sortable: true },
+  { name: "email", label: "Email", field: "email", align: "left", sortable: true },
+  { name: "telefone", label: "Telefone", field: "telefone", align: "left", sortable: true },
+  { name: "cpf", label: "CPF", field: "cpf", align: "left", sortable: true },
+  { name: "endereco", label: "Endereço", field: "endereco", align: "left", sortable: true },
 ];
 
 const locatariosFiltrados = computed(() => {
@@ -338,7 +359,23 @@ const locatariosFiltrados = computed(() => {
   );
 });
 
-// Cadastro
+// Novo ref para rastrear erros de validação no cadastro
+const errosCadastro = ref({
+  nome: false,
+  email: false,
+  telefone: false,
+  cpf: false,
+  endereco: false,
+});
+
+function validarCampo(campo) {
+  
+  if (novoLocatario.value[campo]) {
+    errosCadastro.value[campo] = false;
+  }
+}
+
+// Cadastro 
 const novoLocatario = ref({
   nome: "",
   email: "",
@@ -354,14 +391,57 @@ function abrirModalCadastro() {
     cpf: "",
     endereco: "",
   });
+  Object.assign(errosCadastro.value, {
+    nome: false,
+    email: false,
+    telefone: false,
+    cpf: false,
+    endereco: false,
+  });
   modalCadastro.value = true;
 }
 function cadastrarLocatario() {
-  const novoId = locatarios.value.length
-    ? Math.max(...locatarios.value.map((l) => l.id)) + 1
-    : 1;
-  locatarios.value.push({ id: novoId, ...novoLocatario.value });
-  modalCadastro.value = false;
+  // 1. Resetar o estado de erro
+  Object.assign(errosCadastro.value, {
+    nome: false,
+    email: false,
+    telefone: false,
+    cpf: false,
+    endereco: false,
+  });
+
+  // 2. Realizar a validação
+  let formularioValido = true;
+  
+  if (!novoLocatario.value.nome) {
+    errosCadastro.value.nome = true;
+    formularioValido = false;
+  }
+  if (!novoLocatario.value.email) {
+    errosCadastro.value.email = true;
+    formularioValido = false;
+  }
+  if (!novoLocatario.value.telefone) {
+    errosCadastro.value.telefone = true;
+    formularioValido = false;
+  }
+  if (!novoLocatario.value.cpf) {
+    errosCadastro.value.cpf = true;
+    formularioValido = false;
+  }
+  if (!novoLocatario.value.endereco) {
+    errosCadastro.value.endereco = true;
+    formularioValido = false;
+  }
+  
+  // 3. Se o formulário for válido, cadastre
+  if (formularioValido) {
+    const novoId = locatarios.value.length
+      ? Math.max(...locatarios.value.map((l) => l.id)) + 1
+      : 1;
+    locatarios.value.push({ id: novoId, ...novoLocatario.value });
+    modalCadastro.value = false;
+  }
 }
 
 // Editar
@@ -376,13 +456,6 @@ function atualizarLocatario() {
   );
   if (idx !== -1) locatarios.value[idx] = { ...locatarioEditar.value };
   modalEditar.value = false;
-}
-
-// Visualizar
-const locatarioVisualizar = ref({});
-function visualizarLocatario(locatario) {
-  locatarioVisualizar.value = { ...locatario };
-  modalVisualizar.value = true;
 }
 
 // Excluir

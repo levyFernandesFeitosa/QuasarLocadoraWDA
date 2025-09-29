@@ -1,14 +1,15 @@
 <template>
-  <q-page class="q-pa-md" style="background-color: #f0ffff;">
-    <div class="q-pa-md example-row-column-width" style="background-color: #00bfa6; margin-bottom: 2%; border-radius: 4vh;">
-
+  <q-page class="q-pa-md" style="background-color: #edead0">
+    <div
+      class="q-pa-md example-row-column-width"
+      style="background-color: #274e55; margin-bottom: 2%; border-radius: 2vh"
+    >
       <div class="row items-center q-col-gutter-sm">
-
         <!-- Título: ocupa a linha toda no mobile, só metade no desktop -->
         <div class="col-12 col-md-6">
           <div class="titulo q-mb-sm flex items-center">
-            <q-icon name="people" size="32px" class="q-mr-sm" color="primary" />
-            Usuário
+            <q-icon name="manage_accounts" size="32px" class="q-mr-sm" color="primary" />
+            Usuários
           </div>
         </div>
 
@@ -26,18 +27,16 @@
         <div class="col-6 col-md-4">
           <q-input
             class="pesquisaALL"
-            rounded
             standout
             v-model="pesquisa"
-            label="Pesquisar Usuários"
-            :dense="true"
+            label="Pesquisar Usuário"
+            
           >
             <template v-slot:append>
               <q-icon name="search" />
             </template>
           </q-input>
         </div>
-
       </div>
     </div>
     <q-table
@@ -183,9 +182,9 @@ const usuarios = ref([
 ]);
 
 const columns = [
-  { name: "nome", label: "Nome do Usuário", field: "nome", align: "left" },
-  { name: "email", label: "Email", field: "email", align: "left" },
-  { name: "tipo", label: "Permições", field: "tipo", align: "left" },
+  { name: "nome", label: "Nome do Usuário", field: "nome", align: "left",  sortable: true },
+  { name: "email", label: "Email", field: "email", align: "left",  sortable: true },
+  { name: "tipo", label: "Permições", field: "tipo", align: "left",  sortable: true },
 ];
 
 const usuariosFiltrados = computed(() => {

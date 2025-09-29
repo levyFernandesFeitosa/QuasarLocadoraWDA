@@ -1,13 +1,14 @@
 <template>
-  <q-page class="q-pa-md" style="background-color: #f0ffff;">
-    <div class="q-pa-md example-row-column-width" style="background-color: #00bfa6; margin-bottom: 2%; border-radius: 4vh;">
-
+  <q-page class="q-pa-md" style="background-color: #edead0">
+    <div
+      class="q-pa-md example-row-column-width"
+      style="background-color: #274e55; margin-bottom: 2%; border-radius: 2vh"
+    >
       <div class="row items-center q-col-gutter-sm">
-
         <!-- Título: ocupa a linha toda no mobile, só metade no desktop -->
         <div class="col-12 col-md-6">
           <div class="titulo q-mb-sm flex items-center">
-            <q-icon name="people" size="32px" class="q-mr-sm" color="primary" />
+            <q-icon name="menu_book" size="32px" class="q-mr-sm" color="primary" />
             Livros
           </div>
         </div>
@@ -26,18 +27,16 @@
         <div class="col-6 col-md-4">
           <q-input
             class="pesquisaALL"
-            rounded
             standout
             v-model="pesquisa"
-            label="Pesquisar Livros"
-            :dense="true"
+            label="Pesquisar Livro"
+            
           >
             <template v-slot:append>
               <q-icon name="search" />
             </template>
           </q-input>
         </div>
-
       </div>
     </div>
 
@@ -172,12 +171,12 @@ const livros = ref([
 ]);
 
 const columns = [
-  { name: "titulo", label: "Título", field: "titulo", align: "left" },
-  { name: "autor", label: "Autor", field: "autor", align: "left" },
-  { name: "dataLancada", label: "Data de Lançamento", field: "dataLancada", align: "left" },
-  { name: "disponivel", label: "Disponível", field: "disponivel", align: "left" },
-  { name: "alugados", label: "Alugados", field: "alugados", align: "left" },
-  { name: "editora", label: "Editora", field: "editora", align: "left" },
+  { name: "titulo", label: "Título", field: "titulo", align: "left",  sortable: true },
+  { name: "autor", label: "Autor", field: "autor", align: "left",  sortable: true },
+  { name: "dataLancada", label: "Data de Lançamento", field: "dataLancada", align: "left",  sortable: true },
+  { name: "disponivel", label: "Disponível", field: "disponivel", align: "left",  sortable: true },
+  { name: "alugados", label: "Alugados", field: "alugados", align: "left", sortable: true },
+  { name: "editora", label: "Editora", field: "editora", align: "left",  sortable: true },
 ];
 
 const livrosFiltrados = computed(() => {

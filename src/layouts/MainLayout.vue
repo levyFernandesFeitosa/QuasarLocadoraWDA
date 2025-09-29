@@ -1,7 +1,7 @@
 <template>
   <q-layout view="lHh Lpr lFf">
     <!-- Header -->
-    <q-header style="background-color: #303030; color: white">
+    <q-header style="background-color: #0d1b2a; color: white">
       <q-toolbar>
         <div class="header-left">
           <q-btn
@@ -57,7 +57,7 @@
         $q.screen.md ? 200 : 
         $q.screen.lg ? 300 : 
         300"
-      style="background-color: #303030; color: white"
+      style="background-color: #0d1b2a; color: white"
     >
       <div class="logoWDAALL">
         <img :src="logo" alt="WDA GROUP LOGO.png" />

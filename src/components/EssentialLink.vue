@@ -35,13 +35,13 @@ const props = defineProps({
 <style scoped>
 /* Cor fixa para o item da página ativa */
 .active-link {
-  background-color: rgba(159, 252, 255, 1); /* cor de fundo quando ativo */
-  color: black;              /* cor do texto quando ativo */
+  background-color: #274e55 !important; /* cor de fundo quando ativo */
+  color: rgba(159, 252, 255, 1);             /* cor do texto quando ativo */
 }
 
 /* Cor do hover (quando passa o mouse) */
 .q-item:hover {
-  background-color: #0a6568; /* escolhe a cor que quiser */
-  color: rgba(159, 252, 255, 1);              /* mantém texto visível */
+  background-color: #00bfa6 !important;; /* escolhe a cor que quiser */
+  color: black;              /* mantém texto visível */
 }
 </style>
