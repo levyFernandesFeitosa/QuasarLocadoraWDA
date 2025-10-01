@@ -1,24 +1,39 @@
-import { boot } from 'quasar/wrappers'
-import axios from 'axios'
+import { boot } from 'quasar/wrappers';
+import axios from 'axios';
 
-// Be careful when using SSR for cross-request state pollution
-// due to creating a Singleton instance here;
-// If any client changes this (global) instance, it might be a
-// good idea to move this instance creation inside of the
-// "export default () => {}" function below (which runs individually
-// for each client)
-const api = axios.create({ baseURL: 'https://api.example.com' })
+const api = axios.create({
+  baseURL: 'https://locadora-ryan-back.altislabtech.com.br',
+  headers: { 'Content-Type': 'application/json' }
+});
 
 export default boot(({ app }) => {
-  // for use inside Vue files (Options API) through this.$axios and this.$api
+  // Pega token do localStorage
+  const token = localStorage.getItem('authToken');
+  if (token) {
+    api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+  }
 
-  app.config.globalProperties.$axios = axios
-  // ^ ^ ^ this will allow you to use this.$axios (for Vue Options API form)
-  //       so you won't necessarily have to import axios in each vue file
+  // Disponibiliza o axios normal e a api configurada no Vue
+  app.config.globalProperties.$axios = axios;
+  app.config.globalProperties.$api = api;
 
-  app.config.globalProperties.$api = api
-  // ^ ^ ^ this will allow you to use this.$api (for Vue Options API form)
-  //       so you can easily perform requests against your app's API
-})
+  /**
+   * Função de autenticação
+   * Pode ser usada em qualquer componente via this.$authenticate(email, password)
+   */
+  app.config.globalProperties.$authenticate = async (email, password) => {
+    try {
+      const { data } = await api.post('/auth/login', { email, password });
+      if (data?.token) {
+        api.defaults.headers.common['Authorization'] = `Bearer ${data.token}`;
+        localStorage.setItem('authToken', data.token);
+      }
+      return data;
+    } catch (err) {
+      console.error('Erro de autenticação:', err);
+      throw err;
+    }
+  };
+});
 
-export { api }
+export { api };

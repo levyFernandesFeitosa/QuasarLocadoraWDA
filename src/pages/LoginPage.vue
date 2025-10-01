@@ -31,35 +31,30 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
-import { useRouter } from 'vue-router'
-import logo from 'src/assets/image.png'
+import { ref } from 'vue';
+import { useQuasar } from 'quasar';
+import logo from 'src/assets/wda-group-logo.png'; // Ajuste para seu caminho de logo
 
-const router = useRouter()
-const email = ref('')
-const password = ref('')
-const error = ref('')
+const $q = useQuasar();
 
-const handleLogin = () => {
-  error.value = ''
+const email = ref('');
+const password = ref('');
+const error = ref('');
 
-  if (email.value === 'admin@gmail.com' && password.value === '12345678') {
-    // Armazena um token fake só pra manter a lógica de autenticação
-    localStorage.setItem('authToken', 'fake-token-admin')
-    router.push('/dashboard')
-  } else {
-    error.value = 'Email ou senha inválidos'
+const handleLogin = async () => {
+  error.value = '';
+  try {
+    // Usa a função global $authenticate do boot
+    const data = await $authenticate(email.value, password.value);
+
+    if (data?.token) {
+      $q.notify({ type: 'positive', message: 'Login realizado com sucesso!' });
+      window.location.href = '/tudo/html/dashboard.html'; // Ajuste conforme sua rota
+    } else {
+      error.value = 'Erro ao resgatar token.';
+    }
+  } catch (err) {
+    error.value = 'Email ou senha inválidos.';
   }
-}
-
-router.beforeEach((to, from, next) => {
-  const token = localStorage.getItem('authToken')
-
-  if (!token && to.path !== '/login') {
-    next('/login')
-  } else {
-    next()
-  }
-})
-
+};
 </script>

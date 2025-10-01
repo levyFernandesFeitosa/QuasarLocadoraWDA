@@ -1,5 +1,5 @@
 <template>
-  <q-page class="dashboard-page q-pa-md bg-grey-1">
+  <q-page class="dashboard-page q-pa-md bg-grey-1" style="background-color: #edead0;">
     <div class="dashboard">
       <!-- Estatísticas: Gráficos + Totais -->
       <div class="dashboard-grid">

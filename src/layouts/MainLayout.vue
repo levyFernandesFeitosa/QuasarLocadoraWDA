@@ -20,21 +20,24 @@
           </q-toolbar-title>
         </div>
 
-        <div >
+        <div>
           <q-btn-dropdown
             class="MenuBTN"
             color="purple"
             :label="$q.screen.xs ? 'Eu' : 'Usuário'"
             content-class="menu-transparente"
           >
-            <div class="modalMenu  q-pa-md">
+            <div class="modalMenu q-pa-md">
               <div class="colomn q-pr-lg">
                 <div class="text-h5 q-mb-md">Informações:</div>
-                <div class="info">👤 Nome do Usuário: <span>Caio Cesar</span></div>
+                <div class="info">
+                  👤 Nome do Usuário: <span>Caio Cesar</span>
+                </div>
                 <div class="info">📧 Email: <span>admin@gmail.com</span></div>
                 <div class="info">🔑 Permissão: <span>ADMIN</span></div>
                 <q-btn
-                  class="MenuBTN" id="MenuBTN"
+                  class="MenuBTN"
+                  id="MenuBTN"
                   color="primary"
                   label="Logout"
                   href="src/pages/LoginPage.vue"
@@ -52,23 +55,27 @@
       show-if-above
       class="drawer-main"
       :width="
-        $q.screen.xs ? 180 : 
-        $q.screen.sm ? 220 : 
-        $q.screen.md ? 200 : 
-        $q.screen.lg ? 300 : 
-        300"
+        $q.screen.xs
+          ? 180
+          : $q.screen.sm
+          ? 220
+          : $q.screen.md
+          ? 200
+          : $q.screen.lg
+          ? 300
+          : 300
+      "
       style="background-color: #0d1b2a; color: white"
     >
       <div class="logoWDAALL">
         <img :src="logo" alt="WDA GROUP LOGO.png" />
       </div>
-      <q-list class="drawer-list" >
-        <div class="drawer-links" >
+      <q-list class="drawer-list">
+        <div class="drawer-links">
           <EssentialLink
             v-for="link in linksList"
             :key="link.title"
             v-bind="link"
-            
           />
         </div>
       </q-list>
@@ -127,7 +134,7 @@ const linksList = [
   },
   {
     title: "Logout",
-    link: "src/pages/LoginPage.vue",
+    link: "/logout",
     icon: "logout",
     style: "padding-top: 7%; padding-bottom: 7%;",
   },

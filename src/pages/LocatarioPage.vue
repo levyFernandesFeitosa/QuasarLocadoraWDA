@@ -276,198 +276,124 @@
 </template>
 
 <script setup>
-import { ref, computed } from "vue";
+  import { ref, computed, onMounted } from 'vue';
+  import { 
+    listarLocatarios, 
+    criarLocatario, 
+    atualizarLocatario as atualizarLocatarioAPI, 
+    deletarLocatario 
+  } from 'src/services/locatarioService';
 
-const pesquisa = ref("");
-const modalCadastro = ref(false);
-const modalEditar = ref(false);
-const modalVisualizar = ref(false);
-const modalExcluir = ref(false);
+  const locatarios = ref([]);
+  const pesquisa = ref('');
+  const modalCadastro = ref(false);
+  const modalEditar = ref(false);
+  const modalExcluir = ref(false);
 
-const locatarios = ref([
-  {
-    id: 1,
-    nome: "João Silva",
-    email: "joao@email.com",
-    telefone: "11999999999",
-    cpf: "123.456.789-00",
-    endereco: "Rua A, 123",
-  },
-  {
-    id: 2,
-    nome: "Maria Souza",
-    email: "maria@email.com",
-    telefone: "11988888888",
-    cpf: "987.654.321-00",
-    endereco: "Rua B, 456",
-  },
-  {
-    id: 3,
-    nome: "Carlos Lima",
-    email: "carlos@email.com",
-    telefone: "11977777777",
-    cpf: "111.222.333-44",
-    endereco: "Rua C, 789",
-  },
-  {
-    id: 3,
-    nome: "Carlos Lima",
-    email: "carlos@email.com",
-    telefone: "11977777777",
-    cpf: "111.222.333-44",
-    endereco: "Rua C, 789",
-  },
-  {
-    id: 3,
-    nome: "Carlos Lima",
-    email: "carlos@email.com",
-    telefone: "11977777777",
-    cpf: "111.222.333-44",
-    endereco: "Rua C, 789",
-  },
-
-  {
-    id: 3,
-    nome: "Carlos Lima",
-    email: "carlos@email.com",
-    telefone: "11977777777",
-    cpf: "111.222.333-44",
-    endereco: "Rua C, 789",
-  },
-  {
-    id: 3,
-    nome: "Carlos Lima",
-    email: "carlos@email.com",
-    telefone: "11977777777",
-    cpf: "111.222.333-44",
-    endereco: "Rua C, 789",
-  },
-]);
-
-const columns = [
-  { name: "nome", label: "Nome", field: "nome", align: "left", sortable: true },
-  { name: "email", label: "Email", field: "email", align: "left", sortable: true },
-  { name: "telefone", label: "Telefone", field: "telefone", align: "left", sortable: true },
-  { name: "cpf", label: "CPF", field: "cpf", align: "left", sortable: true },
-  { name: "endereco", label: "Endereço", field: "endereco", align: "left", sortable: true },
-];
-
-const locatariosFiltrados = computed(() => {
-  if (!pesquisa.value) return locatarios.value;
-  return locatarios.value.filter((l) =>
-    l.nome.toLowerCase().includes(pesquisa.value.toLowerCase())
-  );
-});
-
-// Novo ref para rastrear erros de validação no cadastro
-const errosCadastro = ref({
-  nome: false,
-  email: false,
-  telefone: false,
-  cpf: false,
-  endereco: false,
-});
-
-function validarCampo(campo) {
-  
-  if (novoLocatario.value[campo]) {
-    errosCadastro.value[campo] = false;
-  }
-}
-
-// Cadastro 
-const novoLocatario = ref({
-  nome: "",
-  email: "",
-  telefone: "",
-  cpf: "",
-  endereco: "",
-});
-function abrirModalCadastro() {
-  Object.assign(novoLocatario.value, {
-    nome: "",
-    email: "",
-    telefone: "",
-    cpf: "",
-    endereco: "",
+  const novoLocatario = ref({
+    nome: '',
+    email: '',
+    telefone: '',
+    cpf: '',
+    endereco: ''
   });
-  Object.assign(errosCadastro.value, {
+
+  const locatarioEditar = ref({});
+  const locatarioExcluir = ref(null);
+
+  const errosCadastro = ref({
     nome: false,
     email: false,
     telefone: false,
     cpf: false,
-    endereco: false,
-  });
-  modalCadastro.value = true;
-}
-function cadastrarLocatario() {
-  // 1. Resetar o estado de erro
-  Object.assign(errosCadastro.value, {
-    nome: false,
-    email: false,
-    telefone: false,
-    cpf: false,
-    endereco: false,
+    endereco: false
   });
 
-  // 2. Realizar a validação
-  let formularioValido = true;
-  
-  if (!novoLocatario.value.nome) {
-    errosCadastro.value.nome = true;
-    formularioValido = false;
-  }
-  if (!novoLocatario.value.email) {
-    errosCadastro.value.email = true;
-    formularioValido = false;
-  }
-  if (!novoLocatario.value.telefone) {
-    errosCadastro.value.telefone = true;
-    formularioValido = false;
-  }
-  if (!novoLocatario.value.cpf) {
-    errosCadastro.value.cpf = true;
-    formularioValido = false;
-  }
-  if (!novoLocatario.value.endereco) {
-    errosCadastro.value.endereco = true;
-    formularioValido = false;
-  }
-  
-  // 3. Se o formulário for válido, cadastre
-  if (formularioValido) {
-    const novoId = locatarios.value.length
-      ? Math.max(...locatarios.value.map((l) => l.id)) + 1
-      : 1;
-    locatarios.value.push({ id: novoId, ...novoLocatario.value });
-    modalCadastro.value = false;
-  }
-}
+  // Carrega dados na montagem
+  onMounted(async () => {
+    await carregarLocatarios();
+  });
 
-// Editar
-const locatarioEditar = ref({});
-function editarLocatario(locatario) {
-  locatarioEditar.value = { ...locatario };
-  modalEditar.value = true;
-}
-function atualizarLocatario() {
-  const idx = locatarios.value.findIndex(
-    (l) => l.id === locatarioEditar.value.id
-  );
-  if (idx !== -1) locatarios.value[idx] = { ...locatarioEditar.value };
-  modalEditar.value = false;
-}
+  async function carregarLocatarios() {
+    try {
+      const { data } = await listarLocatarios();
+      locatarios.value = data;
+    } catch (err) {
+      console.error('Erro ao listar locatários:', err);
+    }
+  }
 
-// Excluir
-const locatarioExcluir = ref({});
-function confirmarExcluir(locatario) {
-  locatarioExcluir.value = locatario;
-  modalExcluir.value = true;
-}
-function excluirLocatario() {
-  locatarios.value = locatarios.value.filter(
-    (l) => l.id !== locatarioExcluir.value.id
-  );
-  modalExcluir.value = false;
-}
+  // Criar
+  async function cadastrarLocatario() {
+    try {
+      await criarLocatario(novoLocatario.value);
+      modalCadastro.value = false;
+      await carregarLocatarios();
+    } catch (err) {
+      console.error('Erro ao cadastrar:', err);
+    }
+  }
+
+  // Atualizar
+  async function atualizarLocatario() {
+    try {
+      await atualizarLocatarioAPI(locatarioEditar.value.id, locatarioEditar.value);
+      modalEditar.value = false;
+      await carregarLocatarios();
+    } catch (err) {
+      console.error('Erro ao atualizar:', err);
+    }
+  }
+
+  // Excluir
+  async function excluirLocatario() {
+    try {
+      await deletarLocatario(locatarioExcluir.value.id);
+      modalExcluir.value = false;
+      await carregarLocatarios();
+    } catch (err) {
+      console.error('Erro ao excluir:', err);
+    }
+  }
+
+  // Abrir modal de cadastro
+  function abrirModalCadastro() {
+    novoLocatario.value = { nome: '', email: '', telefone: '', cpf: '', endereco: '' };
+    modalCadastro.value = true;
+  }
+
+  // Abrir modal de edição
+  function editarLocatario(locatario) {
+    locatarioEditar.value = { ...locatario };
+    modalEditar.value = true;
+  }
+
+  // Abrir modal de exclusão
+  function confirmarExcluir(locatario) {
+    locatarioExcluir.value = locatario;
+    modalExcluir.value = true;
+  }
+
+  // Filtro da pesquisa
+  const locatariosFiltrados = computed(() => {
+    if (!pesquisa.value) return locatarios.value;
+    const termo = pesquisa.value.toLowerCase();
+    return locatarios.value.filter(l =>
+      l.nome.toLowerCase().includes(termo) ||
+      l.email.toLowerCase().includes(termo) ||
+      l.telefone.toLowerCase().includes(termo) ||
+      l.cpf.toLowerCase().includes(termo) ||
+      l.endereco.toLowerCase().includes(termo)
+    );
+  });
+
+  const columns = [
+    { name: 'id', label: 'ID', field: 'id', align: 'left' },
+    { name: 'nome', label: 'Nome', field: 'nome', align: 'left' },
+    { name: 'email', label: 'Email', field: 'email', align: 'left' },
+    { name: 'telefone', label: 'Telefone', field: 'telefone', align: 'left' },
+    { name: 'cpf', label: 'CPF', field: 'cpf', align: 'left' },
+    { name: 'endereco', label: 'Endereço', field: 'endereco', align: 'left' }
+  ];
 </script>
+

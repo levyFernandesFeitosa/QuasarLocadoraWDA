@@ -74,6 +74,9 @@ img {
     margin-left: -2% !important;
     margin-top: -2%;
   }
+  @media (min-width: 1440px) {  // lg e xl
+    margin-top: 4%;
+  }
   
 }
 
@@ -148,7 +151,7 @@ img {
 
   @media (min-width: 1440px) {
     // lg e xl
-    height: 60% !important;
+    height: 70% !important;
   }
 
   border-radius: 5vh !important;
