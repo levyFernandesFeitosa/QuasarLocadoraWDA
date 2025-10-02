@@ -41,6 +41,7 @@
     </div>
 
     <q-table
+      class="minha-tabela-moderna"
       :rows="locatariosFiltrados"
       :columns="columns"
       row-key="id"
@@ -67,7 +68,7 @@
           <q-td v-for="col in props.cols" :key="col.name" :props="props">
             {{ col.value }}
           </q-td>
-          <q-td style="padding-left: 4%;">
+          <q-td >
             <q-btn
               dense
               flat
@@ -276,124 +277,255 @@
 </template>
 
 <script setup>
-  import { ref, computed, onMounted } from 'vue';
-  import { 
-    listarLocatarios, 
-    criarLocatario, 
-    atualizarLocatario as atualizarLocatarioAPI, 
-    deletarLocatario 
-  } from 'src/services/locatarioService';
+import { ref, onMounted, computed, watch } from 'vue';
+import { useQuasar } from 'quasar';
+import LocatarioService from 'src/service/LocatarioService.js'; // O serviço que criamos
 
-  const locatarios = ref([]);
-  const pesquisa = ref('');
-  const modalCadastro = ref(false);
-  const modalEditar = ref(false);
-  const modalExcluir = ref(false);
+const $q = useQuasar();
 
-  const novoLocatario = ref({
+// 1. Variáveis de Estado (Modais e Formulários)
+const allLocatarios = ref([]);
+const loading = ref(false);
+const pesquisa = ref('');
+const locatarioParaExcluir = ref(null);
+
+// Estado do Modal de Cadastro
+const modalCadastro = ref(false);
+const novoLocatario = ref({
     nome: '',
     email: '',
     telefone: '',
     cpf: '',
-    endereco: ''
-  });
+    endereco: '',
+});
+const errosCadastro = ref({}); // Para validar os inputs
 
-  const locatarioEditar = ref({});
-  const locatarioExcluir = ref(null);
+// Estado do Modal de Edição
+const modalEditar = ref(false);
+const locatarioEditar = ref({
+    id: null,
+    nome: '',
+    email: '',
+    telefone: '',
+    cpf: '',
+    endereco: '',
+});
+const modalExcluir = ref(false);
 
-  const errosCadastro = ref({
-    nome: false,
-    email: false,
-    telefone: false,
-    cpf: false,
-    endereco: false
-  });
-
-  // Carrega dados na montagem
-  onMounted(async () => {
-    await carregarLocatarios();
-  });
-
-  async function carregarLocatarios() {
-    try {
-      const { data } = await listarLocatarios();
-      locatarios.value = data;
-    } catch (err) {
-      console.error('Erro ao listar locatários:', err);
-    }
-  }
-
-  // Criar
-  async function cadastrarLocatario() {
-    try {
-      await criarLocatario(novoLocatario.value);
-      modalCadastro.value = false;
-      await carregarLocatarios();
-    } catch (err) {
-      console.error('Erro ao cadastrar:', err);
-    }
-  }
-
-  // Atualizar
-  async function atualizarLocatario() {
-    try {
-      await atualizarLocatarioAPI(locatarioEditar.value.id, locatarioEditar.value);
-      modalEditar.value = false;
-      await carregarLocatarios();
-    } catch (err) {
-      console.error('Erro ao atualizar:', err);
-    }
-  }
-
-  // Excluir
-  async function excluirLocatario() {
-    try {
-      await deletarLocatario(locatarioExcluir.value.id);
-      modalExcluir.value = false;
-      await carregarLocatarios();
-    } catch (err) {
-      console.error('Erro ao excluir:', err);
-    }
-  }
-
-  // Abrir modal de cadastro
-  function abrirModalCadastro() {
-    novoLocatario.value = { nome: '', email: '', telefone: '', cpf: '', endereco: '' };
-    modalCadastro.value = true;
-  }
-
-  // Abrir modal de edição
-  function editarLocatario(locatario) {
-    locatarioEditar.value = { ...locatario };
-    modalEditar.value = true;
-  }
-
-  // Abrir modal de exclusão
-  function confirmarExcluir(locatario) {
-    locatarioExcluir.value = locatario;
-    modalExcluir.value = true;
-  }
-
-  // Filtro da pesquisa
-  const locatariosFiltrados = computed(() => {
-    if (!pesquisa.value) return locatarios.value;
-    const termo = pesquisa.value.toLowerCase();
-    return locatarios.value.filter(l =>
-      l.nome.toLowerCase().includes(termo) ||
-      l.email.toLowerCase().includes(termo) ||
-      l.telefone.toLowerCase().includes(termo) ||
-      l.cpf.toLowerCase().includes(termo) ||
-      l.endereco.toLowerCase().includes(termo)
-    );
-  });
-
-  const columns = [
-    { name: 'id', label: 'ID', field: 'id', align: 'left' },
-    { name: 'nome', label: 'Nome', field: 'nome', align: 'left' },
-    { name: 'email', label: 'Email', field: 'email', align: 'left' },
-    { name: 'telefone', label: 'Telefone', field: 'telefone', align: 'left' },
+// 2. Colunas da Tabela (Mantido do seu código)
+const columns = [
+    { name: 'name', label: 'Nome', field: 'name', align: 'left', sortable: true },
+    { name: 'email', label: 'E-mail', field: 'email', align: 'left', sortable: true },
+    { name: 'telephone', label: 'Telefone', field: 'telephone', align: 'left' },
     { name: 'cpf', label: 'CPF', field: 'cpf', align: 'left' },
-    { name: 'endereco', label: 'Endereço', field: 'endereco', align: 'left' }
-  ];
-</script>
+    { name: 'address', label: 'Endereço', field: 'address', align: 'left' },
+];
 
+// --- 3. Funções de UI (Modais e Validação) ---
+
+// FUNÇÃO RESTAURADA: Valida um campo individualmente (para o @input)
+const validarCampo = (campo) => {
+    if (!novoLocatario.value[campo] || novoLocatario.value[campo].trim() === '') {
+        errosCadastro.value[campo] = true;
+    } else {
+        delete errosCadastro.value[campo];
+    }
+};
+
+// NOVA FUNÇÃO: Valida o formulário inteiro antes de enviar
+const validarFormulario = () => {
+    errosCadastro.value = {};
+    let valido = true;
+    
+    // Lista de campos obrigatórios
+    const camposObrigatorios = ['nome', 'email', 'telefone', 'cpf', 'endereco'];
+
+    camposObrigatorios.forEach(campo => {
+        if (!novoLocatario.value[campo] || novoLocatario.value[campo].trim() === '') {
+            errosCadastro.value[campo] = true;
+            valido = false;
+        }
+    });
+    return valido;
+};
+
+const abrirModalCadastro = () => {
+    // Limpa o formulário antes de abrir
+    novoLocatario.value = { nome: '', email: '', telefone: '', cpf: '', endereco: '' };
+    errosCadastro.value = {}; // Limpa os erros!
+    modalCadastro.value = true;
+};
+
+const editarLocatario = (locatario) => {
+    // Preenche o formulário com os dados do locatário
+    locatarioEditar.value = {
+        id: locatario.id,
+        nome: locatario.name,
+        email: locatario.email,
+        telefone: locatario.telephone,
+        cpf: locatario.cpf,
+        endereco: locatario.address,
+    };
+    modalEditar.value = true;
+};
+
+const confirmarExcluir = (locatario) => {
+    locatarioParaExcluir.value = locatario;
+    modalExcluir.value = true;
+};
+
+
+// --- 4. Lógica CRUD (Chama o Service) ---
+
+const fetchLocatarios = async () => {
+    loading.value = true;
+    try {
+        const data = await LocatarioService.getAll();
+        allLocatarios.value = data;
+    } catch (error) {
+        const errorMessage = error.message || 'Erro ao carregar a lista de locatários. Verifique a API.';
+        $q.notify({ 
+            type: 'negative', 
+            message: errorMessage,
+            timeout: 5000 
+        });
+    } finally {
+        loading.value = false;
+    }
+};
+
+const cadastrarLocatario = async () => {
+    // 1. VALIDAÇÃO DO FRONTEND
+    if (!validarFormulario()) {
+        $q.notify({ type: 'warning', message: 'Preencha todos os campos obrigatórios para cadastrar.' });
+        return; // Sai da função se a validação falhar
+    }
+    
+    // Mapeia os dados para a API
+    const dataAPI = {
+        name: novoLocatario.value.nome,
+        email: novoLocatario.value.email,
+        telephone: novoLocatario.value.telefone,
+        cpf: novoLocatario.value.cpf,
+        address: novoLocatario.value.endereco,
+    };
+
+    try {
+        await LocatarioService.create(dataAPI);
+        
+        // Notificação de SUCESSO
+        $q.notify({ type: 'positive', message: 'Locatário cadastrado com sucesso!' });
+        
+        modalCadastro.value = false;
+        fetchLocatarios(); // Recarrega a lista
+    } catch (error) {
+        let errorMessage = 'Erro desconhecido ao cadastrar.';
+
+        if (error.response && error.response.data) {
+            const apiData = error.response.data;
+            if (typeof apiData.message === 'string') {
+                errorMessage = apiData.message;
+            } else if (typeof apiData.detail === 'string') {
+                errorMessage = apiData.detail;
+            } else if (error.response.status === 400) {
+                 errorMessage = 'Erro de validação nos dados. Verifique todos os campos.';
+            }
+        } else {
+             errorMessage = error.message || 'Erro na conexão ou no servidor.';
+        }
+
+        // Notificação de FALHA
+        $q.notify({ 
+            type: 'negative', 
+            message: errorMessage,
+            timeout: 5000 
+        });
+    }
+};
+
+const atualizarLocatario = async () => {
+    const dataAPI = {
+        name: locatarioEditar.value.nome,
+        email: locatarioEditar.value.email,
+        telephone: locatarioEditar.value.telefone,
+        cpf: locatarioEditar.value.cpf,
+        address: locatarioEditar.value.endereco,
+    };
+
+    try {
+        await LocatarioService.update(locatarioEditar.value.id, dataAPI);
+        
+        // Notificação de SUCESSO
+        $q.notify({ type: 'positive', message: 'Locatário atualizado com sucesso!' });
+        
+        modalEditar.value = false;
+        fetchLocatarios(); // Recarrega a lista
+    } catch (error) {
+         let errorMessage = error.message || 'Erro ao atualizar locatário.';
+
+         if (error.response?.data?.message) {
+             errorMessage = error.response.data.message;
+         }
+
+         // Notificação de FALHA
+         $q.notify({ 
+             type: 'negative', 
+             message: errorMessage,
+             timeout: 5000 
+         });
+    }
+};
+
+const excluirLocatario = async () => {
+    if (!locatarioParaExcluir.value) return;
+
+    try {
+        await LocatarioService.delete(locatarioParaExcluir.value.id);
+        
+        // Notificação de SUCESSO
+        $q.notify({ type: 'positive', message: 'Locatário excluído com sucesso!' });
+        
+        modalExcluir.value = false;
+        fetchLocatarios(); // Recarrega a lista
+    } catch (error) {
+        let errorMessage = 'Erro ao excluir locatário.';
+
+        // Tratamento específico para o 400 (Bad Request)
+        if (error.response?.status === 400) {
+             const apiMessage = error.response.data?.message;
+             
+             if (apiMessage && typeof apiMessage === 'string') {
+                 errorMessage = apiMessage;
+             } else {
+                 // Mensagem para restrições de negócio (locatário com aluguel ativo)
+                 errorMessage = 'Não foi possível deletar o locatário. Ele pode estar vinculado a um aluguel ou a outros registros.';
+             }
+        } else if (error.response?.status === 403) {
+            errorMessage = 'Acesso negado. Você não tem permissão para excluir.';
+        } else {
+            errorMessage = error.message || 'Erro inesperado na exclusão.';
+        }
+
+        // Notificação de FALHA
+        $q.notify({ 
+            type: 'negative', 
+            message: errorMessage,
+            timeout: 7000
+        });
+    }
+};
+
+// 5. Computed Properties (Filtragem/Pesquisa)
+const locatariosFiltrados = computed(() => {
+    const termo = pesquisa.value.toLowerCase();
+    if (!termo) return allLocatarios.value;
+    
+    return allLocatarios.value.filter(locatario => 
+        locatario.name.toLowerCase().includes(termo) ||
+        locatario.email.toLowerCase().includes(termo) ||
+        locatario.cpf.includes(termo)
+    );
+});
+
+onMounted(fetchLocatarios);
+</script>

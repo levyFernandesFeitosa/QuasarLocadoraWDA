@@ -464,3 +464,10 @@ img {
     height: 120px;
   }
 }
+
+.minha-tabela-moderna {
+  // Configuração principal da tabela
+  border-radius: 12px; /* Cantos arredondados */
+  overflow: hidden; /* Crucial para o border-radius funcionar com o Quasar */
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15); /* Sombra mais destacada */
+}
