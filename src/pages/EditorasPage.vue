@@ -164,118 +164,174 @@
 </template>
 
 <script setup>
-import { ref, computed } from "vue";
+import { ref, onMounted, computed } from 'vue';
+import { useQuasar } from 'quasar';
+import EditorasService from 'src/service/editorasService'; // Seu serviço de API
 
-const pesquisa = ref("");
+const $q = useQuasar();
+
+// 1. ESTADO REATIVO (Variáveis que o template usa)
+// Substitui `arrayEditoras` do Vanilla JS
+const allEditoras = ref([]); 
+const pesquisa = ref(''); // V-model do q-input de pesquisa
+const isLoading = ref(true); 
+
+// Variáveis para Modais
 const modalCadastro = ref(false);
 const modalEditar = ref(false);
 const modalExcluir = ref(false);
 
-const editoras = ref([
-  {
-    id: 1,
-    nome: "Editora Alfa",
-    email: "alfa@email.com",
-    telefone: "11999999999",
-    site: "www.alfa.com.br",
-  },
-  {
-    id: 2,
-    nome: "Editora Beta",
-    email: "beta@email.com",
-    telefone: "11988888888",
-    site: "www.beta.com.br",
-  },
-  {
-    id: 3,
-    nome: "Editora Gama",
-    email: "gama@email.com",
-    telefone: "11977777777",
-    site: "www.gama.com.br",
-  },
-    {
-    id: 3,
-    nome: "Editora Gama",
-    email: "gama@email.com",
-    telefone: "11977777777",
-    site: "www.gama.com.br",
-  },
-    {
-    id: 3,
-    nome: "Editora Gama",
-    email: "gama@email.com",
-    telefone: "11977777777",
-    site: "www.gama.com.br",
-  },
-    {
-    id: 3,
-    nome: "Editora Gama",
-    email: "gama@email.com",
-    telefone: "11977777777",
-    site: "www.gama.com.br",
-  },
-]);
+// Objeto para Cadastro
+const novaEditora = ref({
+  nome: '',
+  email: '',
+  telefone: '',
+  site: '',
+});
 
+// Objeto para Edição e Exclusão (armazena a linha selecionada)
+const editoraEditar = ref({}); 
+const editoraExcluir = ref({});
+
+// 2. COLUNAS DA TABELA
+// Define as colunas da Q-Table. Os campos (`field`) devem ser os nomes que vêm da sua API
 const columns = [
-  { name: "nome", label: "Nome da Editora", field: "nome", align: "left",  sortable: true },
-  { name: "telefone", label: "Telefone", field: "telefone", align: "left",  sortable: true },
-  { name: "email", label: "Email", field: "email", align: "left",  sortable: true },
-  { name: "site", label: "Site", field: "site", align: "left",  sortable: true },
+  { name: 'id', label: 'ID', field: 'id', align: 'left', sortable: true },
+  // Assumindo que sua API retorna 'name', 'email', 'telephone', 'site'
+  { name: 'name', label: 'Nome', field: 'name', align: 'left', sortable: true }, 
+  { name: 'email', label: 'E-mail', field: 'email', align: 'left', sortable: true },
+  { name: 'telefone', label: 'Telefone', field: 'telephone', align: 'left', sortable: true },
+  { name: 'site', label: 'Site', field: 'site', align: 'left', sortable: true },
 ];
 
+// 3. PROPRIEDADE COMPUTADA (Lógica de Filtragem)
+// Filtra o array de editoras baseado no texto da pesquisa.
 const editorasFiltradas = computed(() => {
-  if (!pesquisa.value) return editoras.value;
-  return editoras.value.filter((e) =>
-    e.nome.toLowerCase().includes(pesquisa.value.toLowerCase())
-  );
+  if (!pesquisa.value) {
+    return allEditoras.value;
+  }
+  const termo = pesquisa.value.toLowerCase();
+  
+  return allEditoras.value.filter(editora => {
+    // Verificamos todos os campos relevantes
+    return (
+      editora.name?.toLowerCase().includes(termo) ||
+      editora.email?.toLowerCase().includes(termo) ||
+      editora.telephone?.toLowerCase().includes(termo) ||
+      editora.site?.toLowerCase().includes(termo)
+    );
+  });
 });
 
-// Cadastro
-const novaEditora = ref({
-  nome: "",
-  email: "",
-  telefone: "",
-  site: "",
-});
+// 4. MÉTODOS DE AÇÃO (Conexão com a API)
+
+/** Busca todas as editoras na API */
+async function carregarEditoras() {
+  isLoading.value = true;
+  try {
+    const data = await EditorasService.buscarTodas();
+    // A API retorna objetos com campos como 'name', 'email', etc.
+    allEditoras.value = Array.isArray(data) ? data : [data];
+  } catch (error) {
+    console.error('Falha ao carregar editoras:', error);
+    $q.notify({
+      type: 'negative',
+      message: 'Erro ao carregar editoras.',
+      caption: error.response?.data?.message || 'Verifique sua conexão ou token de acesso.',
+    });
+  } finally {
+    isLoading.value = false;
+  }
+}
+
+/** Prepara e abre o modal de cadastro */
 function abrirModalCadastro() {
-  Object.assign(novaEditora.value, {
-    nome: "",
-    email: "",
-    telefone: "",
-    site: "",
-  });
+  // Limpa o formulário
+  novaEditora.value = { nome: '', email: '', telefone: '', site: '' };
   modalCadastro.value = true;
 }
-function cadastrarEditora() {
-  const novoId = editoras.value.length
-    ? Math.max(...editoras.value.map((e) => e.id)) + 1
-    : 1;
-  editoras.value.push({ id: novoId, ...novaEditora.value });
-  modalCadastro.value = false;
+
+/** Envia os dados da nova editora para a API */
+async function cadastrarEditora() {
+  try {
+    const dataToSend = {
+      name: novaEditora.value.nome,
+      email: novaEditora.value.email,
+      telephone: novaEditora.value.telefone,
+      site: novaEditora.value.site,
+    };
+    
+    await EditorasService.criar(dataToSend);
+    
+    $q.notify({ type: 'positive', message: 'Editora cadastrada com sucesso!' });
+    modalCadastro.value = false;
+    carregarEditoras(); // Recarrega a lista
+    
+  } catch (error) {
+    console.error('Erro no cadastro:', error);
+    $q.notify({ type: 'negative', message: 'Falha ao cadastrar editora.' });
+  }
 }
 
-// Editar
-const editoraEditar = ref({});
+/** Prepara a linha para edição */
 function editarEditora(editora) {
-  editoraEditar.value = { ...editora };
+  // Cria uma cópia profunda dos dados da linha para não alterar o original diretamente
+  editoraEditar.value = { 
+    id: editora.id,
+    nome: editora.name,
+    email: editora.email,
+    telefone: editora.telephone,
+    site: editora.site,
+  };
   modalEditar.value = true;
 }
-function atualizarEditora() {
-  const idx = editoras.value.findIndex((e) => e.id === editoraEditar.value.id);
-  if (idx !== -1) editoras.value[idx] = { ...editoraEditar.value };
-  modalEditar.value = false;
+
+/** Envia a atualização para a API */
+async function atualizarEditora() {
+  try {
+    const dataToSend = {
+      name: editoraEditar.value.nome,
+      email: editoraEditar.value.email,
+      telephone: editoraEditar.value.telefone,
+      site: editoraEditar.value.site,
+    };
+    
+    await EditorasService.atualizar(editoraEditar.value.id, dataToSend);
+    
+    $q.notify({ type: 'positive', message: 'Editora atualizada com sucesso!' });
+    modalEditar.value = false;
+    carregarEditoras(); // Recarrega a lista
+    
+  } catch (error) {
+    console.error('Erro na atualização:', error);
+    $q.notify({ type: 'negative', message: 'Falha ao atualizar editora.' });
+  }
 }
 
-// Excluir
-const editoraExcluir = ref({});
+/** Prepara e abre o modal de confirmação de exclusão */
 function confirmarExcluir(editora) {
   editoraExcluir.value = editora;
   modalExcluir.value = true;
 }
-function excluirEditora() {
-  editoras.value = editoras.value.filter(
-    (e) => e.id !== editoraExcluir.value.id
-  );
-  modalExcluir.value = false;
+
+/** Executa a exclusão na API */
+async function excluirEditora() {
+  try {
+    await EditorasService.deletar(editoraExcluir.value.id);
+    
+    $q.notify({ type: 'positive', message: 'Editora excluída com sucesso!' });
+    modalExcluir.value = false;
+    carregarEditoras(); // Recarrega a lista
+    
+  } catch (error) {
+    console.error('Erro na exclusão:', error);
+    $q.notify({ type: 'negative', message: 'Falha ao excluir editora.' });
+  }
 }
+
+// 5. CICLO DE VIDA (onMounted substitui window.onload)
+// Inicia o carregamento dos dados quando o componente é montado.
+onMounted(() => {
+  carregarEditoras();
+});
 </script>

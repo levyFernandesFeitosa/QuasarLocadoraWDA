@@ -41,14 +41,13 @@
     </div>
 
     <q-table
-      class="minha-tabela-moderna"
       :rows="locatariosFiltrados"
       :columns="columns"
       row-key="id"
-      :rows-per-page-options="$q.screen.lt.md ? [] : [5, 10, 20]"
+      :rows-per-page-options="$q.screen.lt.md ? [] : [6, 10, 20]"
       :pagination="{
         page: 1,
-        rowsPerPage: $q.screen.lt.md ? 0 : 5,
+        rowsPerPage: $q.screen.lt.md ? 0 : 6,
       }"
       flat
       bordered
@@ -125,9 +124,9 @@
 
     <!-- Modal Cadastro -->
     <q-dialog v-model="modalCadastro">
-      <q-card class="modal .col-md-12 .col-xl-12">
+      <q-card class="modal ">
+        <div class="tituloModal">Cadastrar Locatário</div>
         <q-card-section class="conteudoModal">
-          <div class="tituloModal">Cadastrar Locatário</div>
           <q-input
             class="inputModal"
             outlined
@@ -199,8 +198,9 @@
     <!-- Modal Editar -->
     <q-dialog v-model="modalEditar">
       <q-card class="modal">
+        <div class="tituloModal">Atualizar Locatário</div>
         <q-card-section class="conteudoModal">
-          <div class="tituloModal">Atualizar Locatário</div>
+          
           <q-input
             class="inputModal"
             v-model="locatarioEditar.nome"
