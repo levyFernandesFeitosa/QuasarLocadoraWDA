@@ -8,7 +8,12 @@
         <!-- Título: ocupa a linha toda no mobile, só metade no desktop -->
         <div class="col-12 col-md-6">
           <div class="titulo q-mb-sm flex items-center">
-            <q-icon name="library_books" size="32px" class="q-mr-sm" color="primary" />
+            <q-icon
+              name="library_books"
+              size="32px"
+              class="q-mr-sm"
+              color="primary"
+            />
             Editoras
           </div>
         </div>
@@ -30,7 +35,6 @@
             standout
             v-model="pesquisa"
             label="Pesquisar Editoras"
-            
           >
             <template v-slot:append>
               <q-icon name="search" />
@@ -80,7 +84,7 @@
 
     <!-- Modal Cadastro -->
     <q-dialog v-model="modalCadastro">
-      <q-card class="modal" style="max-height: 80%; width: 100%;">
+      <q-card class="modal" style="max-height: 80%; width: 100%">
         <q-card-section class="conteudoModal">
           <div class="tituloModal">Cadastrar Editora</div>
           <q-input
@@ -88,6 +92,9 @@
             outlined
             v-model="novaEditora.nome"
             label="Nome da Editora"
+            :error="errosCadastro.nome"
+            error-color="negative"
+            @input="validarCampo('nome')"
             required
           />
           <q-input
@@ -96,27 +103,51 @@
             v-model="novaEditora.email"
             label="Email da Editora"
             type="email"
+            :error="errosCadastro.email"
+            error-color="negative"
+            @input="validarCampo('email')"
             required
           />
-          <q-input class="inputModal" outlined v-model="novaEditora.telefone" label="Telefone" required />
+          <q-input
+            class="inputModal"
+            outlined
+            v-model="novaEditora.telefone"
+            label="Telefone"
+            :error="errosCadastro.telefone"
+            error-color="negative"
+            @input="validarCampo('telefone')"
+            required
+          />
           <q-input
             class="inputModal"
             outlined
             v-model="novaEditora.site"
             label="Site da Editora"
+            :error="errosCadastro.site"
+            error-color="negative"
+            @input="validarCampo('site')"
             required
           />
         </q-card-section>
         <q-card-actions class="botoesModal">
-          <q-btn class="modalBTN" label="Cadastrar" color="primary" @click="cadastrarEditora" />
-          <q-btn class="modalBTN" label="Cancelar" @click="modalCadastro = false" />
+          <q-btn
+            class="modalBTN"
+            label="Cadastrar"
+            color="primary"
+            @click="cadastrarEditora"
+          />
+          <q-btn
+            class="modalBTN"
+            label="Cancelar"
+            @click="modalCadastro = false"
+          />
         </q-card-actions>
       </q-card>
     </q-dialog>
 
     <!-- Modal Editar -->
     <q-dialog v-model="modalEditar">
-      <q-card class="modal" style="max-height: 80%; width: 100%;">
+      <q-card class="modal" style="max-height: 80%; width: 100%">
         <q-card-section class="conteudoModal">
           <div class="tituloModal">Atualizar Editora</div>
           <q-input
@@ -132,16 +163,26 @@
             type="email"
             required
           />
-          <q-input class="inputModal" v-model="editoraEditar.telefone" label="Telefone" required />
+          <q-input
+            class="inputModal"
+            v-model="editoraEditar.telefone"
+            label="Telefone"
+            required
+          />
           <q-input
             class="inputModal"
             v-model="editoraEditar.site"
             label="Site da Editora"
             required
           />
-        </q-card-section >
+        </q-card-section>
         <q-card-actions class="botoesModal">
-          <q-btn class="modalBTN" label="Atualizar" color="primary" @click="atualizarEditora" />
+          <q-btn
+            class="modalBTN"
+            label="Atualizar"
+            color="primary"
+            @click="atualizarEditora"
+          />
           <q-btn class="modalBTN" label="Fechar" @click="modalEditar = false" />
         </q-card-actions>
       </q-card>
@@ -149,14 +190,23 @@
 
     <!-- Modal Confirmar Excluir -->
     <q-dialog v-model="modalExcluir">
-      <q-card class="modalCertificando" style="max-width: 35%; width: 100%;">
+      <q-card class="modalCertificando" style="max-width: 35%; width: 100%">
         <q-card-section class="conteudoModal">
           <div class="text-h6">Certeza que deseja excluir essa Editora?</div>
           <div class="q-mt-sm">Após essa ação não haverá retorno.</div>
         </q-card-section>
         <q-card-actions class="botoesModal">
-          <q-btn class="modalBTN" label="Excluir" color="negative" @click="excluirEditora" />
-          <q-btn class="modalBTN" label="Voltar" @click="modalExcluir = false" />
+          <q-btn
+            class="modalBTN"
+            label="Excluir"
+            color="negative"
+            @click="excluirEditora"
+          />
+          <q-btn
+            class="modalBTN"
+            label="Voltar"
+            @click="modalExcluir = false"
+          />
         </q-card-actions>
       </q-card>
     </q-dialog>
@@ -164,17 +214,19 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from 'vue';
-import { useQuasar } from 'quasar';
-import EditorasService from 'src/service/editorasService'; // Seu serviço de API
+import { ref, onMounted, computed } from "vue";
+import { useQuasar } from "quasar";
+// Certifique-se de que este caminho está correto no seu projeto
+import EditorasService from "src/services/editorasService"; 
 
 const $q = useQuasar();
 
-// 1. ESTADO REATIVO (Variáveis que o template usa)
-// Substitui `arrayEditoras` do Vanilla JS
-const allEditoras = ref([]); 
-const pesquisa = ref(''); // V-model do q-input de pesquisa
-const isLoading = ref(true); 
+// ===================================================
+// 1. ESTADO REATIVO
+// ===================================================
+const allEditoras = ref([]);
+const pesquisa = ref("");
+const isLoading = ref(true);
 
 // Variáveis para Modais
 const modalCadastro = ref(false);
@@ -183,37 +235,61 @@ const modalExcluir = ref(false);
 
 // Objeto para Cadastro
 const novaEditora = ref({
-  nome: '',
-  email: '',
-  telefone: '',
-  site: '',
+  nome: "",
+  email: "",
+  telefone: "",
+  site: "",
 });
 
-// Objeto para Edição e Exclusão (armazena a linha selecionada)
-const editoraEditar = ref({}); 
+// **NOVO:** Objeto para Edição e Exclusão (armazena a linha selecionada)
+const editoraEditar = ref({});
 const editoraExcluir = ref({});
 
+// **NOVO:** Objeto para ERROS de Cadastro (Controla a cor vermelha)
+const errosCadastro = ref({
+  nome: false,
+  email: false,
+  telefone: false,
+  site: false,
+});
+
+// **NOVO:** Objeto para ERROS de Edição (Controla a cor vermelha)
+// Importante usar um objeto separado, pois os modais são independentes
+const errosEdicao = ref({
+  nome: false,
+  email: false,
+  telefone: false,
+  site: false,
+});
+
 // 2. COLUNAS DA TABELA
-// Define as colunas da Q-Table. Os campos (`field`) devem ser os nomes que vêm da sua API
 const columns = [
-  { name: 'id', label: 'ID', field: 'id', align: 'left', sortable: true },
-  // Assumindo que sua API retorna 'name', 'email', 'telephone', 'site'
-  { name: 'name', label: 'Nome', field: 'name', align: 'left', sortable: true }, 
-  { name: 'email', label: 'E-mail', field: 'email', align: 'left', sortable: true },
-  { name: 'telefone', label: 'Telefone', field: 'telephone', align: 'left', sortable: true },
-  { name: 'site', label: 'Site', field: 'site', align: 'left', sortable: true },
+  { name: "name", label: "Nome", field: "name", align: "left", sortable: true },
+  {
+    name: "email",
+    label: "E-mail",
+    field: "email",
+    align: "left",
+    sortable: true,
+  },
+  {
+    name: "telefone",
+    label: "Telefone",
+    field: "telephone",
+    align: "left",
+    sortable: true,
+  },
+  { name: "site", label: "Site", field: "site", align: "left", sortable: true },
 ];
 
 // 3. PROPRIEDADE COMPUTADA (Lógica de Filtragem)
-// Filtra o array de editoras baseado no texto da pesquisa.
 const editorasFiltradas = computed(() => {
   if (!pesquisa.value) {
     return allEditoras.value;
   }
   const termo = pesquisa.value.toLowerCase();
-  
-  return allEditoras.value.filter(editora => {
-    // Verificamos todos os campos relevantes
+
+  return allEditoras.value.filter((editora) => {
     return (
       editora.name?.toLowerCase().includes(termo) ||
       editora.email?.toLowerCase().includes(termo) ||
@@ -223,21 +299,78 @@ const editorasFiltradas = computed(() => {
   });
 });
 
-// 4. MÉTODOS DE AÇÃO (Conexão com a API)
+// ===================================================
+// 4. MÉTODOS DE VALIDAÇÃO E AÇÃO
+// ===================================================
+
+/**
+ * Limpa o estado de erro de um campo ao digitar.
+ * @param {string} campo - O nome do campo (ex: 'nome', 'email').
+ * @param {string} tipo - 'cadastro' ou 'edicao' para saber qual objeto de erro usar.
+ */
+function validarCampo(campo, tipo = 'cadastro') {
+  if (tipo === 'cadastro') {
+    errosCadastro.value[campo] = false;
+  } else {
+    errosEdicao.value[campo] = false;
+  }
+}
+
+/**
+ * Valida se todos os campos do formulário de Cadastro estão preenchidos.
+ * Seta o estado de erro para true para os campos vazios.
+ */
+function validarFormularioCadastro() {
+  let valido = true;
+  const campos = ['nome', 'email', 'telefone', 'site'];
+
+  campos.forEach(campo => {
+    if (!novaEditora.value[campo] || novaEditora.value[campo].trim() === "") {
+      errosCadastro.value[campo] = true;
+      valido = false;
+    } else {
+      errosCadastro.value[campo] = false;
+    }
+  });
+
+  return valido;
+}
+
+/**
+ * Valida se todos os campos do formulário de Edição estão preenchidos.
+ * Seta o estado de erro para true para os campos vazios.
+ */
+function validarFormularioEdicao() {
+  let valido = true;
+  const campos = ['nome', 'email', 'telefone', 'site'];
+
+  campos.forEach(campo => {
+    if (!editoraEditar.value[campo] || editoraEditar.value[campo].trim() === "") {
+      errosEdicao.value[campo] = true;
+      valido = false;
+    } else {
+      errosEdicao.value[campo] = false;
+    }
+  });
+
+  return valido;
+}
+
 
 /** Busca todas as editoras na API */
 async function carregarEditoras() {
   isLoading.value = true;
   try {
     const data = await EditorasService.buscarTodas();
-    // A API retorna objetos com campos como 'name', 'email', etc.
     allEditoras.value = Array.isArray(data) ? data : [data];
   } catch (error) {
-    console.error('Falha ao carregar editoras:', error);
+    console.error("Falha ao carregar editoras:", error);
     $q.notify({
-      type: 'negative',
-      message: 'Erro ao carregar editoras.',
-      caption: error.response?.data?.message || 'Verifique sua conexão ou token de acesso.',
+      type: "negative",
+      message: "Erro ao carregar editoras.",
+      caption:
+        error.response?.data?.message ||
+        "Verifique sua conexão ou token de acesso.",
     });
   } finally {
     isLoading.value = false;
@@ -247,12 +380,23 @@ async function carregarEditoras() {
 /** Prepara e abre o modal de cadastro */
 function abrirModalCadastro() {
   // Limpa o formulário
-  novaEditora.value = { nome: '', email: '', telefone: '', site: '' };
+  novaEditora.value = { nome: "", email: "", telefone: "", site: "" };
+  // **NOVO:** Limpa os erros de validação
+  errosCadastro.value = { nome: false, email: false, telefone: false, site: false };
   modalCadastro.value = true;
 }
 
 /** Envia os dados da nova editora para a API */
 async function cadastrarEditora() {
+  // **NOVO:** Executa a validação antes de enviar
+  if (!validarFormularioCadastro()) {
+    $q.notify({
+      type: "negative",
+      message: "Preencha todos os campos obrigatórios.",
+    });
+    return; // Para a execução
+  }
+
   try {
     const dataToSend = {
       name: novaEditora.value.nome,
@@ -260,34 +404,44 @@ async function cadastrarEditora() {
       telephone: novaEditora.value.telefone,
       site: novaEditora.value.site,
     };
-    
+
     await EditorasService.criar(dataToSend);
-    
-    $q.notify({ type: 'positive', message: 'Editora cadastrada com sucesso!' });
+
+    $q.notify({ type: "positive", message: "Editora cadastrada com sucesso!" });
     modalCadastro.value = false;
     carregarEditoras(); // Recarrega a lista
-    
   } catch (error) {
-    console.error('Erro no cadastro:', error);
-    $q.notify({ type: 'negative', message: 'Falha ao cadastrar editora.' });
+    console.error("Erro no cadastro:", error);
+    $q.notify({ type: "negative", message: "Falha ao cadastrar editora." });
   }
 }
 
 /** Prepara a linha para edição */
 function editarEditora(editora) {
-  // Cria uma cópia profunda dos dados da linha para não alterar o original diretamente
-  editoraEditar.value = { 
+  // Cria uma cópia profunda dos dados da linha
+  editoraEditar.value = {
     id: editora.id,
     nome: editora.name,
     email: editora.email,
     telefone: editora.telephone,
     site: editora.site,
   };
+  // **NOVO:** Limpa os erros de validação
+  errosEdicao.value = { nome: false, email: false, telefone: false, site: false };
   modalEditar.value = true;
 }
 
 /** Envia a atualização para a API */
 async function atualizarEditora() {
+  // **NOVO:** Executa a validação antes de enviar
+  if (!validarFormularioEdicao()) {
+    $q.notify({
+      type: "negative",
+      message: "Preencha todos os campos obrigatórios.",
+    });
+    return; // Para a execução
+  }
+
   try {
     const dataToSend = {
       name: editoraEditar.value.nome,
@@ -295,16 +449,15 @@ async function atualizarEditora() {
       telephone: editoraEditar.value.telefone,
       site: editoraEditar.value.site,
     };
-    
+
     await EditorasService.atualizar(editoraEditar.value.id, dataToSend);
-    
-    $q.notify({ type: 'positive', message: 'Editora atualizada com sucesso!' });
+
+    $q.notify({ type: "positive", message: "Editora atualizada com sucesso!" });
     modalEditar.value = false;
     carregarEditoras(); // Recarrega a lista
-    
   } catch (error) {
-    console.error('Erro na atualização:', error);
-    $q.notify({ type: 'negative', message: 'Falha ao atualizar editora.' });
+    console.error("Erro na atualização:", error);
+    $q.notify({ type: "negative", message: "Falha ao atualizar editora." });
   }
 }
 
@@ -318,19 +471,17 @@ function confirmarExcluir(editora) {
 async function excluirEditora() {
   try {
     await EditorasService.deletar(editoraExcluir.value.id);
-    
-    $q.notify({ type: 'positive', message: 'Editora excluída com sucesso!' });
+
+    $q.notify({ type: "positive", message: "Editora excluída com sucesso!" });
     modalExcluir.value = false;
     carregarEditoras(); // Recarrega a lista
-    
   } catch (error) {
-    console.error('Erro na exclusão:', error);
-    $q.notify({ type: 'negative', message: 'Falha ao excluir editora.' });
+    console.error("Erro na exclusão:", error);
+    $q.notify({ type: "negative", message: "Falha ao excluir editora." });
   }
 }
 
-// 5. CICLO DE VIDA (onMounted substitui window.onload)
-// Inicia o carregamento dos dados quando o componente é montado.
+// 5. CICLO DE VIDA
 onMounted(() => {
   carregarEditoras();
 });

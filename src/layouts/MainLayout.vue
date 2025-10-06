@@ -40,7 +40,7 @@
                   id="MenuBTN"
                   color="primary"
                   label="Logout"
-                  href="src/pages/LoginPage.vue"
+                  @click="handleLogout"
                 />
               </div>
             </div>
@@ -79,6 +79,19 @@
           />
         </div>
       </q-list>
+      <q-item 
+      clickable 
+      @click="handleLogout" 
+      class="q-ma-sm" 
+      style="padding-top: 7%; padding-bottom: 7%;"
+    >
+      <q-item-section avatar>
+        <q-icon name="logout" />
+      </q-item-section>
+      <q-item-section>
+        <q-item-label>Logout</q-item-label>
+      </q-item-section>
+    </q-item>
     </q-drawer>
     <q-page-container>
       <router-view />
@@ -88,12 +101,16 @@
 
 <script setup>
 import { ref } from "vue";
+import { useRouter } from 'vue-router'; // 👈 Import necessário para navegação
 import EssentialLink from "components/EssentialLink.vue";
 import logo from "src/assets/image.png";
 
 defineOptions({
   name: "MainLayout",
 });
+
+// 🚀 Instancie o router
+const router = useRouter(); 
 
 const linksList = [
   {
@@ -132,17 +149,37 @@ const linksList = [
     icon: "manage_accounts",
     style: "padding-top: 7%; padding-bottom: 7%;",
   },
-  {
-    title: "Logout",
-    link: "/logout",
-    icon: "logout",
-    style: "padding-top: 7%; padding-bottom: 7%;",
-  },
+  // 🚫 O item 'Logout' foi removido daqui para ser tratado pelo botão dedicado
 ];
 
 const leftDrawerOpen = ref(false);
 
 function toggleLeftDrawer() {
   leftDrawerOpen.value = !leftDrawerOpen.value;
+}
+
+/**
+ * Lida com o processo de Logout: Limpa o estado, navega para /login 
+ * usando o Vue Router, e força uma recarga completa para remover o MainLayout.
+ */
+async function handleLogout() {
+  console.log("Executando script de limpeza de estado...");
+  
+  // 1. PASSO DE LIMPEZA (Seu código de limpeza aqui)
+  // Ex: localStorage.removeItem('authToken');
+
+  // 2. PASSO DE REDIRECIONAMENTO COMPLETO
+  try {
+    // 🔑 IMPORTANTE: Navega para a rota raiz ('/'), que é o LOGIN
+    await router.push({ path: '/' }); 
+
+    // Força a recarga, destruindo o MainLayout e reiniciando a app no LoginLayout
+    window.location.reload(); 
+    
+  } catch (error) {
+    console.error("Erro durante o logout (navegação/recarga):", error);
+    // Fallback garantido
+    window.location.href = '/'; 
+  }
 }
 </script>

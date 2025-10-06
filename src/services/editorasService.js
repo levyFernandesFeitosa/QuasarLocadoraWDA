@@ -1,4 +1,4 @@
-import api from './axios';
+import { api } from 'boot/axios'; 
 
 const EditorasService = {
     // Endpoint para buscar todas as editoras

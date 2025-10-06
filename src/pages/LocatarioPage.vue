@@ -124,7 +124,7 @@
 
     <!-- Modal Cadastro -->
     <q-dialog v-model="modalCadastro">
-      <q-card class="modal ">
+      <q-card class="modal " id="modalGrande">
         <div class="tituloModal">Cadastrar Locatário</div>
         <q-card-section class="conteudoModal">
           <q-input
@@ -197,7 +197,7 @@
 
     <!-- Modal Editar -->
     <q-dialog v-model="modalEditar">
-      <q-card class="modal">
+      <q-card class="modal" id="modalGrande">
         <div class="tituloModal">Atualizar Locatário</div>
         <q-card-section class="conteudoModal">
           
@@ -279,7 +279,7 @@
 <script setup>
 import { ref, onMounted, computed, watch } from 'vue';
 import { useQuasar } from 'quasar';
-import LocatarioService from 'src/service/LocatarioService.js'; // O serviço que criamos
+import LocatarioService from 'src/services/LocatarioService'; // O serviço que criamos
 
 const $q = useQuasar();
 

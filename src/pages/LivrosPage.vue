@@ -81,7 +81,7 @@
 
     <!-- Modal Cadastro -->
     <q-dialog v-model="modalCadastro">
-      <q-card class="modal">
+      <q-card class="modal" id="modalGrande">
         <q-card-section class="conteudoModal">
           <div class="tituloModal">Cadastrar Livro</div>
           <q-input class="inputModal" outlined v-model="novoLivro.titulo" label="Título do Livro" required />
@@ -99,7 +99,7 @@
 
     <!-- Modal Editar -->
     <q-dialog v-model="modalEditar">
-      <q-card class="modal">
+      <q-card class="modal" id="modalGrande">
         <q-card-section class="conteudoModal">
           <div class="tituloModal">Atualizar Livro</div>
           <q-input class="inputModal" v-model="livroEditar.titulo" label="Título" required />
