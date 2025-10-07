@@ -279,7 +279,7 @@
 <script setup>
 import { ref, onMounted, computed, watch } from 'vue';
 import { useQuasar } from 'quasar';
-import LocatarioService from 'src/services/LocatarioService'; // O serviço que criamos
+import LocatarioService from 'src/services/locatarioService'; // O serviço que criamos
 
 const $q = useQuasar();
 

@@ -1,5 +1,7 @@
 // src/i18n/pt-BR.js
 
+// import DashboardPage from "src/pages/DashboardPage.vue";
+
 export default {
   // Uma estrutura de namespaces ajuda a organizar. 'login' é o namespace aqui.
   login: {
@@ -14,6 +16,20 @@ export default {
     // Mensagens de notificação e erro
     success_message: 'Login bem-sucedido!',
     error_message_default: 'Email ou senha inválidos. Tente novamente.',
+  },
+
+  DashboardPage: {
+    Rental_Distribution: 'Distribuição de Aluguéis',
+    Most_Rented_Books: 'Livros Mais Alugados',
+    Total_Rentals: 'Total de Aluguéis',
+    Total_Renters: 'Total de Locatários',
+    Renter: 'Locatário',
+    Total_Loans: 'Total de Empréstimos',
+    Rentals_Returned: 'Aluguéis Devolvidos',
+    Returned: 'Devolvidos',
+    Pending: 'Pendentes',
+    Rentals: 'Aluguéis',  
+
   },
   // Aqui você pode adicionar outros namespaces, como 'dashboard', 'settings', etc.
   general: {

@@ -169,6 +169,10 @@ img {
 }
 #modalGrande{
   height: 90% !important;
+  @media (min-width: 1440px) {
+    // lg e xl
+    height: 70% !important;
+  }
 }
 
 .inputModal .q-field__native,
@@ -316,7 +320,7 @@ img {
   align-items: center;
   justify-content: center;
   @media (min-width: 1440px) {
-    margin-bottom: 5%;
+    margin-bottom: 2%;
   }
 }
 
@@ -347,7 +351,7 @@ img {
   align-items: center;
   gap: 2vh;
   @media (min-width: 1440px) {
-    margin-bottom: 5%;
+    margin-bottom: 2%;
   }
 
 }
