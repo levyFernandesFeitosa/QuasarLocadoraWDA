@@ -153,36 +153,3 @@ onMounted(() => {
 
 
 </script>
-
-<style scoped>
-.dashboard {
-  display: flex;
-  flex-direction: column;
-  gap: 2vh;
-}
-
-.stats {
-  width: 100%;
-}
-
-.dashboard-grid {
-  display: flex;
-  flex-wrap: wrap;
-  
-}
-
-
-
-.cards-coluna {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-
-.paginacao {
-  justify-content: center;
-  align-items: center;
-}
-
-
-</style>
