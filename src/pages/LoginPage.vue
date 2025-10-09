@@ -1,5 +1,5 @@
 <template>
-  <q-page class="flex flex-center" style="height: 100vh; background-color: hsl(180, 100%, 92%);">
+  <q-page class="flex flex-center" style="height: 100vh; background-color: #edead0;">
     
     <div class="language-selector-container">
       
@@ -87,7 +87,7 @@ import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { useQuasar } from 'quasar';
 import authService from 'src/services/authService.js'; 
-import logo from 'src/assets/wda-group-logo.png';
+import logo from 'src/assets/image.png';
 import { useI18n } from 'vue-i18n'; 
 
 export default {

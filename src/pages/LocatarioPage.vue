@@ -44,10 +44,10 @@
       :rows="locatariosFiltrados"
       :columns="columns"
       row-key="id"
-      :rows-per-page-options="$q.screen.lt.md ? [] : [6, 10, 20]"
+      :rows-per-page-options="$q.screen.lt.md ? [] : [5, 10, 20]"
       :pagination="{
         page: 1,
-        rowsPerPage: $q.screen.lt.md ? 0 : 6,
+        rowsPerPage: $q.screen.lt.md ? 0 : 5,
       }"
       flat
       bordered

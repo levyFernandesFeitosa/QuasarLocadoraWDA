@@ -133,10 +133,6 @@ img {
 
 .modal {
   width: 100% !important;
-  @media (min-width: 1440px) {
-    // lg e xl
-    height: 60% !important;
-  }
   border-radius: 5vh !important;
   margin-left: 10%;
   margin-top: 2%;
@@ -155,6 +151,9 @@ img {
   width: 100% !important;
   max-width: 100% !important;
   margin-left: 2.5%;
+  @media (min-width: 1440px) {
+    margin-bottom: 5%;
+  }
 }
 
 .inputModal .q-field__control,
@@ -309,8 +308,6 @@ img {
   gap: 2vh;
 
   @media (min-width: 1440px) {
-    // lg e xl
-    height: 60% !important;
     gap: 0;
   }
 }
@@ -509,4 +506,14 @@ img {
 .paginacao {
   justify-content: center;
   align-items: center;
+}
+
+/* Adicione isso em um arquivo .scss que está sendo carregado globalmente */
+.dialogo-escuro {
+    background-color: #0d1b2a !important;
+}
+
+/* É comum que o Quasar adicione uma div extra ao redor */
+.dialogo-escuro .q-card {
+    background-color: #0d1b2a !important;
 }

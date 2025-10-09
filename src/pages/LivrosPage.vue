@@ -233,7 +233,7 @@ const livroParaDeletarId = ref(null);
 
 // Colunas da Tabela
 const columns = [
-  { name: "id", label: "ID", field: "id", align: "left", sortable: true },
+  
   {
     name: "name",
     label: "Título",
