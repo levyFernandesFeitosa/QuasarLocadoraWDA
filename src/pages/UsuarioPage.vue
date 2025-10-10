@@ -80,7 +80,7 @@
 
     <!-- Modal Cadastro -->
     <q-dialog v-model="modalCadastro">
-      <q-card class="modal" style="height: 80%;">
+      <q-card class="modal">
         <q-card-section class="conteudoModal">
           <div class="tituloModal">Cadastrar Locatário</div>
           <q-input
@@ -168,105 +168,241 @@
 </template>
 
 <script setup>
-import { ref, computed } from "vue";
+import { ref, onMounted, computed, reactive } from 'vue';
+import { useQuasar } from 'quasar';
+import { usuarioService } from 'src/services/usuarioService';
 
-const pesquisa = ref("");
+const $q = useQuasar();
+
+// --- Estado da Aplicação ---
+const allUsers = ref([]); // Lista completa de usuários da API
+const loading = ref(false); 
+
+// --- Estado da Pesquisa e Tabela ---
+const pesquisa = ref(''); // Mapeia para o v-model do q-input
+const columns = [ // Colunas da Q-Table
+  { name: 'name', label: 'Nome', field: 'name', sortable: true, align: 'left' },
+  { name: 'email', label: 'E-mail', field: 'email', sortable: true, align: 'left' },
+  { name: 'role', label: 'Permissão', field: 'role', sortable: true, align: 'left' },
+  // A coluna "Ações" não precisa ser definida aqui, pois é um slot customizado no template.
+];
+
+// --- Lógica da Q-Table e Pesquisa ---
+const usuariosFiltrados = computed(() => {
+  const term = pesquisa.value.toLowerCase();
+  if (!term) {
+    return allUsers.value;
+  }
+  // Implementa a lógica de filtro do seu código Vanilla
+  return allUsers.value.filter(user => 
+    (user.name?.toLowerCase().includes(term)) ||
+    (user.email?.toLowerCase().includes(term)) ||
+    (user.role?.toLowerCase().includes(term))
+  );
+});
+
+// --- Estado dos Modais ---
 const modalCadastro = ref(false);
 const modalEditar = ref(false);
 const modalExcluir = ref(false);
 
-const usuarios = ref([
-  { id: 1, nome: "Ana Paula", email: "ana@email.com", tipo: "USER" },
-  { id: 2, nome: "Bruno Lima", email: "bruno@email.com", tipo: "ADMIN" },
-  { id: 3, nome: "Carlos Souza", email: "carlos@email.com", tipo: "USER" },
-]);
-
-const columns = [
-  { name: "nome", label: "Nome do Usuário", field: "nome", align: "left",  sortable: true },
-  { name: "email", label: "Email", field: "email", align: "left",  sortable: true },
-  { name: "tipo", label: "Permições", field: "tipo", align: "left",  sortable: true },
-];
-
-const usuariosFiltrados = computed(() => {
-  if (!pesquisa.value) return usuarios.value;
-  return usuarios.value.filter(
-    (u) =>
-      u.nome.toLowerCase().includes(pesquisa.value.toLowerCase()) ||
-      u.email.toLowerCase().includes(pesquisa.value.toLowerCase())
-  );
-});
-
-// Cadastro
+// Objeto para novo cadastro (misto com a API: name, email, password, role)
 const novoUsuario = ref({
-  nome: "",
-  email: "",
-  senha: "",
-  confirmarSenha: "",
-  tipo: "USER",
+  nome: '', // Mapeia para name
+  email: '',
+  senha: '', // Mapeia para password
+  tipo: 'USER', // Mapeia para role, valor padrão
 });
-function abrirModalCadastro() {
-  Object.assign(novoUsuario.value, {
-    nome: "",
-    email: "",
-    senha: "",
-    confirmarSenha: "",
-    tipo: "USER",
-  });
-  modalCadastro.value = true;
+
+// Objeto para edição
+const usuarioEditar = ref({
+  id: null,
+  nome: '', // Mapeia para name
+  email: '',
+  senha: '', // Mapeia para password
+  confirmarSenha: '',
+  tipo: '', // Mapeia para role
+});
+
+// Usuário selecionado para exclusão
+const usuarioParaExcluir = ref(null);
+
+// --- Chamadas da API (Serviço) ---
+
+/**
+ * Carrega a lista de usuários ao iniciar a página.
+ */
+async function fetchUsers() {
+  loading.value = true;
+  try {
+    const users = await usuarioService.listarUsuarios();
+    // A API retorna o campo "role" em maiúsculo (ADMIN/USER), então não é necessário ajuste aqui.
+    allUsers.value = users;
+  } catch (error) {
+    console.error('Erro ao buscar usuários:', error);
+    $q.notify({
+      type: 'negative',
+      message: 'Falha ao carregar usuários. ' + (error.response?.data?.message || 'Erro de rede.'),
+    });
+  } finally {
+    loading.value = false;
+  }
 }
-function cadastrarUsuario() {
-  if (novoUsuario.value.senha = null) {
-    // Adicione sua lógica de validação aqui
+
+/**
+ * Cadastra um novo usuário.
+ */
+async function cadastrarUsuario() {
+  const { nome, email, senha, tipo } = novoUsuario.value;
+
+  if (!nome || !email || !senha) {
+    $q.notify({ type: 'warning', message: 'Preencha todos os campos obrigatórios.' });
     return;
   }
-  const novoId = usuarios.value.length
-    ? Math.max(...usuarios.value.map((u) => u.id)) + 1
-    : 1;
-  usuarios.value.push({
-    id: novoId,
-    nome: novoUsuario.value.nome,
-    email: novoUsuario.value.email,
-    tipo: novoUsuario.value.tipo,
-  });
-  modalCadastro.value = false;
+
+  try {
+    const dados = {
+      name: nome,
+      email: email,
+      password: senha,
+      role: tipo.toUpperCase() // Garante que a role esteja em caixa alta
+    };
+    
+    await usuarioService.criarUsuario(dados);
+
+    $q.notify({ type: 'positive', message: 'Usuário cadastrado com sucesso!' });
+    modalCadastro.value = false;
+    // Limpa e recarrega os dados
+    resetNovoUsuario(); 
+    await fetchUsers(); 
+    
+  } catch (error) {
+    console.error('Erro ao cadastrar:', error);
+    $q.notify({ 
+      type: 'negative', 
+      message: 'Erro ao cadastrar usuário. ' + (error.response?.data?.message || 'Verifique o console.') 
+    });
+  }
 }
 
-// Editar
-const usuarioEditar = ref({});
-function editarUsuario(usuario) {
-  usuarioEditar.value = { ...usuario, senha: "", confirmarSenha: "" };
+/**
+ * Abre o modal de edição e preenche os campos.
+ * @param {Object} user - Objeto do usuário a ser editado (vindo da q-table).
+ */
+function editarUsuario(user) {
+  // Mapeia os campos da API para o objeto de edição
+  usuarioEditar.value = {
+    id: user.id,
+    nome: user.name,
+    email: user.email,
+    tipo: user.role, 
+    senha: '', // A senha é sempre limpa no início da edição
+    confirmarSenha: '',
+  };
   modalEditar.value = true;
 }
-function atualizarUsuario() {
-  if (
-    usuarioEditar.value.senha &&
-    usuarioEditar.value.senha !== usuarioEditar.value.confirmarSenha
-  ) {
-    // Adicione sua lógica de validação aqui
+
+/**
+ * Atualiza um usuário existente.
+ */
+async function atualizarUsuario() {
+  const { id, nome, email, senha, confirmarSenha, tipo } = usuarioEditar.value;
+
+  if (senha && senha !== confirmarSenha) {
+    $q.notify({ type: 'warning', message: 'As novas senhas não conferem!' });
     return;
   }
-  const idx = usuarios.value.findIndex((u) => u.id === usuarioEditar.value.id);
-  if (idx !== -1) {
-    usuarios.value[idx] = {
-      ...usuarios.value[idx],
-      nome: usuarioEditar.value.nome,
-      email: usuarioEditar.value.email,
-      tipo: usuarioEditar.value.tipo,
-    };
+  if (!nome || !email) {
+    $q.notify({ type: 'warning', message: 'Nome e email são obrigatórios.' });
+    return;
   }
-  modalEditar.value = false;
+
+  try {
+    const dadosAtualizados = { 
+      name: nome, 
+      email: email, 
+      role: tipo.toUpperCase() 
+    };
+
+    if (senha) {
+      dadosAtualizados.password = senha; // Adiciona senha apenas se alterada
+    }
+    
+    await usuarioService.atualizarUsuario(id, dadosAtualizados);
+    
+    $q.notify({ type: 'positive', message: 'Usuário atualizado com sucesso!' });
+    modalEditar.value = false;
+
+    // Otimização: atualiza o array localmente
+    const index = allUsers.value.findIndex(u => u.id === id);
+    if (index !== -1) {
+        // Usa o spread operator para garantir a reatividade e merge dos dados
+        allUsers.value[index] = { ...allUsers.value[index], ...dadosAtualizados };
+        // Atualiza a visualização, preservando a reatividade do Vue
+        allUsers.value = [...allUsers.value]; 
+    }
+
+  } catch (error) {
+    console.error('Erro ao atualizar:', error);
+    $q.notify({ 
+      type: 'negative', 
+      message: 'Erro ao atualizar usuário. ' + (error.response?.data?.message || 'Verifique o console.') 
+    });
+  }
 }
 
-// Excluir
-const usuarioExcluir = ref({});
-function confirmarExcluir(usuario) {
-  usuarioExcluir.value = usuario;
+/**
+ * Define o usuário para exclusão e abre o modal.
+ * @param {Object} user - Objeto do usuário a ser excluído.
+ */
+function confirmarExcluir(user) {
+  usuarioParaExcluir.value = user;
   modalExcluir.value = true;
 }
-function excluirUsuario() {
-  usuarios.value = usuarios.value.filter(
-    (u) => u.id !== usuarioExcluir.value.id
-  );
-  modalExcluir.value = false;
+
+/**
+ * Executa a exclusão.
+ */
+async function excluirUsuario() {
+  const user = usuarioParaExcluir.value;
+
+  try {
+    await usuarioService.deletarUsuario(user.id);
+
+    $q.notify({ type: 'positive', message: 'Usuário deletado com sucesso!' });
+    modalExcluir.value = false;
+    usuarioParaExcluir.value = null;
+
+    // Otimização: remove o usuário localmente
+    allUsers.value = allUsers.value.filter(u => u.id !== user.id);
+
+  } catch (error) {
+    console.error('Erro ao deletar:', error);
+    $q.notify({ 
+      type: 'negative', 
+      message: 'Erro ao deletar usuário. ' + (error.response?.data?.message || 'Verifique o console.') 
+    });
+  }
 }
+
+// --- Funções de UI/Abertura de Modais ---
+
+function abrirModalCadastro() {
+  resetNovoUsuario();
+  modalCadastro.value = true;
+}
+
+function resetNovoUsuario() {
+  novoUsuario.value = {
+    nome: '',
+    email: '',
+    senha: '',
+    tipo: 'USER',
+  };
+}
+
+// --- Ciclo de Vida: Carregar dados ao montar o componente ---
+onMounted(() => {
+  fetchUsers();
+});
 </script>

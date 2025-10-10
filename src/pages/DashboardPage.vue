@@ -78,78 +78,168 @@
 
 
 <script setup>
-import { ref, onMounted, computed } from "vue";
-import Chart from "chart.js/auto";
+import { ref, onMounted, computed, watch, nextTick } from 'vue';
+import { useQuasar } from 'quasar';
+import { dashboardService } from 'src/services/dashboardService'; // Assumindo este caminho
+import Chart from 'chart.js/auto'; // Certifique-se de ter instalado: npm install chart.js
 
-const totalAlugueis = ref(120);
-const totalLocatarios = ref(35);
+const $q = useQuasar();
 
-const rows = ref([
-  { name: "João Silva", emprestimos: 12, devolvidos: 10 },
-  { name: "Maria Souza", emprestimos: 8, devolvidos: 8 },
-  { name: "Carlos Lima", emprestimos: 15, devolvidos: 13 },
-  { name: "João Silva", emprestimos: 12, devolvidos: 10 },
-  { name: "Maria Souza", emprestimos: 8, devolvidos: 8 },
-  { name: "Carlos Lima", emprestimos: 15, devolvidos: 13 },
-  { name: "João Silva", emprestimos: 12, devolvidos: 10 },
-  { name: "Maria Souza", emprestimos: 8, devolvidos: 8 },
-  { name: "Carlos Lima", emprestimos: 15, devolvidos: 13 },
-  { name: "João Silva", emprestimos: 12, devolvidos: 10 },
-  { name: "Maria Souza", emprestimos: 8, devolvidos: 8 },
-  { name: "Carlos Lima", emprestimos: 15, devolvidos: 13 },
-  // ...mais dados
-]);
+// --- Estado Bruto da API ---
+const loading = ref(true);
+const locatarios = ref([]);
+const alugueis = ref([]);
+const livrosMaisAlugados = ref([]);
+const entreguesNoPrazo = ref(0);
+const entreguesAtraso = ref(0);
+const alugueisAtrasados = ref(0);
 
+// --- Métricas Computadas (Cards) ---
+const totalAlugueis = computed(() => Array.isArray(alugueis.value) ? alugueis.value.length : 0);
+const totalLocatarios = computed(() => Array.isArray(locatarios.value) ? locatarios.value.length : 0);
+
+// --- Colunas da Tabela (Mapeado para :columns="columns" no template) ---
 const columns = [
-  { name: "name", label: "Locatário", field: "name", align: "left", sortable: true },
-  {
-    name: "emprestimos",
-    label: "Total de empréstimos",
-    field: "emprestimos",
-    align: "center",  sortable: true
-  },
-  {
-    name: "devolvidos",
-    label: "Aluguéis Devolvidos",
-    field: "devolvidos",
-    align: "center",  sortable: true
-  },
+  { name: 'nome', label: 'Locatário', field: 'nome', align: 'left', sortable: true },
+  { name: 'totalAlugueis', label: 'Total Aluguéis', field: 'totalAlugueis', align: 'center', sortable: true },
+  { name: 'livrosDevolvidos', label: 'Livros Devolvidos', field: 'livrosDevolvidos', align: 'center', sortable: true },
 ];
 
-onMounted(() => {
-  // Gráfico de Pizza
-  new Chart(document.getElementById("graficoDistribuicaoAlugueis"), {
-    type: "pie",
-    data: {
-      labels: ["Devolvidos", "Pendentes"],
-      datasets: [
-        {
-          data: [80, 40],
-          backgroundColor: ["#26A69A", "#FFA726"],
-        },
-      ],
-    },
-  });
+/**
+ * Lógica de Processamento de Tabela (Mapeado para :rows="rows" no template)
+ * Substitui o mapeamento e a paginação manual do código Vanilla.
+ */
+const rows = computed(() => {
+  const allAlugueis = alugueis.value;
+  return locatarios.value.map(loc => {
+    // Encontra aluguéis por renter ID
+    const alugueisDoLoc = allAlugueis.filter(r => r.renter?.id === loc.id);
 
-  // Gráfico de Barras
-  new Chart(document.getElementById("graficoLivrosMaisAlugados"), {
-    type: "bar",
-    data: {
-      labels: ["Livro A", "Livro B", "Livro C"],
-      datasets: [
-        {
-          label: "Aluguéis",
-          data: [30, 20, 15],
-          backgroundColor: "#42A5F5",
-        },
-      ],
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-    },
+    const totalAlugueis = alugueisDoLoc.length;
+    
+    // Lógica de "Livros Devolvidos"
+    const livrosDevolvidos = alugueisDoLoc.filter(r =>
+      r.status === "DELIVERED" || r.status === "DELIVERED_WITH_DELAY" || r.status === "IN_TIME"
+    ).length;
+
+    return {
+      nome: loc.name, // Nome do locatário
+      totalAlugueis,
+      livrosDevolvidos,
+    };
   });
 });
 
+// --- Lógica de Renderização de Gráficos (Chart.js) ---
+let chartLivros = null;
+let chartPizza = null;
 
+function renderCharts() {
+  // Destrói instâncias antigas para evitar memory leaks
+  if (chartLivros) chartLivros.destroy();
+  if (chartPizza) chartPizza.destroy();
+
+  // Gráfico de Livros Mais Alugados (Barra)
+  const livrosLabels = livrosMaisAlugados.value.map(item => item.name);
+  const livrosData = livrosMaisAlugados.value.map(item => item.totalRents);
+  
+  const ctxLivros = document.getElementById('graficoLivrosMaisAlugados');
+  if (ctxLivros) {
+    chartLivros = new Chart(ctxLivros.getContext('2d'), {
+      type: 'bar',
+      data: {
+        labels: livrosLabels,
+        datasets: [{
+          label: 'Livros Mais Alugados',
+          data: livrosData,
+          backgroundColor: 'rgba(75, 192, 192, 1)',
+          borderColor: 'rgba(75, 192, 192, 1)',
+          borderWidth: 1
+        }]
+      },
+      options: { responsive: true }
+    });
+  }
+
+  // Gráfico de Distribuição de Aluguéis (Pizza)
+  const ctxPizza = document.getElementById('graficoDistribuicaoAlugueis');
+  if (ctxPizza) {
+    chartPizza = new Chart(ctxPizza.getContext('2d'), {
+      type: 'pie',
+      data: {
+        labels: ['Entregues no Prazo', 'Entregues com Atraso', 'Atualmente Atrasados'],
+        datasets: [{
+          label: 'Distribuição de Aluguéis',
+          data: [
+            entreguesNoPrazo.value,
+            entreguesAtraso.value,
+            alugueisAtrasados.value
+          ],
+          backgroundColor: [
+            'rgba(75, 192, 192, 1)',
+            'rgba(255, 183, 0, 0.6)',
+            'rgba(255, 0, 55, 0.6)'
+          ],
+          borderColor: [
+            'rgba(75, 192, 192, 1)',
+            'rgba(255, 206, 86, 1)',
+            'rgba(255, 99, 132, 1)'
+          ],
+          borderWidth: 1
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: {
+            // Regra de layout mobile/desktop com Quasar
+            position: $q.screen.lt.md ? 'bottom' : 'bottom' 
+          }
+        }
+      }
+    });
+  }
+}
+
+// --- Chamada da API e Ciclo de Vida ---
+async function loadData() {
+  loading.value = true;
+  try {
+    const data = await dashboardService.loadDashboardData(1);
+
+    // Mapeia os dados brutos para as variáveis reativas
+    locatarios.value = data.locatarios;
+    alugueis.value = data.alugueis;
+    livrosMaisAlugados.value = data.livrosMaisAlugados;
+    
+    // Contadores diretos da API
+    entreguesNoPrazo.value = data.entreguesNoPrazo;
+    entreguesAtraso.value = data.entreguesAtraso;
+    alugueisAtrasados.value = data.alugueisAtrasados;
+    
+    // nextTick garante que o DOM esteja atualizado (o canvas exista) antes de desenhar
+    await nextTick();
+    renderCharts();
+
+  } catch (error) {
+    console.error('Erro no loadData:', error);
+    $q.notify({
+      type: 'negative',
+      message: 'Falha ao carregar dados da Dashboard.',
+      caption: error.response?.data?.message || 'Verifique sua conexão ou a API.',
+    });
+  } finally {
+    loading.value = false;
+  }
+}
+
+onMounted(() => {
+  loadData();
+});
+
+// Re-renderiza gráficos ao redimensionar para garantir responsividade e ajuste de legendas
+watch(() => $q.screen.width, () => {
+    setTimeout(renderCharts, 100); 
+});
 </script>
+
