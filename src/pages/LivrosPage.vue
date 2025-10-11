@@ -13,14 +13,14 @@
               class="q-mr-sm"
               color="primary"
             />
-            Livros
+            {{ $t('BooksPage.title') }}
           </div>
         </div>
 
         <div class="col-6 col-md-2">
           <q-btn
             class="CadastroBTN"
-            label="Cadastrar"
+            :label="$t('BooksPage.register_button')"
             color="primary"
             @click="abrirModalCadastro"
           />
@@ -31,7 +31,7 @@
             class="pesquisaALL"
             standout
             v-model="termoPesquisa"
-            label="Pesquisar Livro"
+            :label="$t('BooksPage.search_placeholder')"
             debounce="300"
             clearable
           >
@@ -56,14 +56,14 @@
           <q-th v-for="col in props.cols" :key="col.name" :props="props">
             {{ col.label }}
           </q-th>
-          <q-th>Ações</q-th>
+          <q-th>{{ $t('BooksPage.actions_header') }}</q-th>
         </q-tr>
       </template>
       <template v-slot:body="props">
         <q-tr :props="props">
           <q-td v-for="col in props.cols" :key="col.name" :props="props">
             <span v-if="col.name === 'publisher'">{{
-              props.row.publisher?.name || "N/A"
+              props.row.publisher?.name || $t('BooksPage.not_applicable')
             }}</span>
             <span v-else>{{ col.value }}</span>
           </q-td>
@@ -87,7 +87,7 @@
       </template>
 
       <template v-slot:loading>
-        <q-inner-loading showing color="primary" label="Carregando livros..." />
+        <q-inner-loading showing color="primary" :label="$t('BooksPage.loading_books')" />
       </template>
     </q-table>
 
@@ -96,14 +96,14 @@
         <q-form @submit.prevent="salvarLivro" style="width: 100%; height: 90%">
           <q-card-section class="conteudoModal">
             <div class="tituloModal">
-              {{ editando ? "Atualizar Livro" : "Cadastrar Livro" }}
+              {{ editando ? $t('BooksPage.modal_update_title') : $t('BooksPage.modal_register_title') }}
             </div>
 
             <q-input
               class="inputModal"
               outlined
               v-model="livroForm.name"
-              label="Título do Livro"
+              :label="$t('BooksPage.input_title_label')"
               :error="errosCadastro.name"
               error-color="negative"
               @input="validarCampo('name')"
@@ -113,7 +113,7 @@
               class="inputModal"
               outlined
               v-model="livroForm.author"
-              label="Autor"
+              :label="$t('BooksPage.input_author_label')"
               :error="errosCadastro.author"
               error-color="negative"
               @input="validarCampo('author')"
@@ -123,7 +123,7 @@
               class="inputModal"
               outlined
               v-model="livroForm.launchDate"
-              label="Data de Lançamento"
+              :label="$t('BooksPage.input_launch_date_label')"
               type="date"
               stack-label
               :error="errosCadastro.launchDate"
@@ -135,7 +135,7 @@
               class="inputModal"
               outlined
               v-model.number="livroForm.totalQuantity"
-              label="Quantidade Total"
+              :label="$t('BooksPage.input_total_quantity_label')"
               type="number"
               :disable="editando"
               :error="errosCadastro.totalQuantity"
@@ -149,7 +149,7 @@
               outlined
               v-model="livroForm.publisherName"
               :options="opcoesEditoras"
-              label="Editora"
+              :label="$t('BooksPage.input_publisher_label')"
               :error="errosCadastro.publisherName"
               error-color="negative"
               @update:model-value="validarCampo('publisherName')"
@@ -158,12 +158,16 @@
           <q-card-actions class="botoesModal">
             <q-btn
               class="modalBTN"
-              :label="editando ? 'Atualizar' : 'Cadastrar'"
+              :label="editando ? $t('BooksPage.update_button') : $t('BooksPage.register_button')"
               color="primary"
               type="submit"
               :loading="salvando"
             />
-            <q-btn class="modalBTN" label="Cancelar" @click="fecharModal" />
+            <q-btn 
+                class="modalBTN" 
+                :label="$t('BooksPage.cancel_button')" 
+                @click="fecharModal" 
+            />
           </q-card-actions>
         </q-form>
       </q-card>
@@ -172,19 +176,19 @@
     <q-dialog v-model="modalExcluir">
       <q-card class="modalCertificando" style="max-width: 35%; width: 100%">
         <q-card-section class="conteudoModal">
-          <div class="text-h6">Certeza que deseja excluir esse Livro?</div>
-          <div class="text-h6">Após essa ação não haverá retorno.</div>
+          <div class="text-h6">{{ $t('BooksPage.confirm_delete_q1') }}</div>
+          <div class="text-h6">{{ $t('BooksPage.confirm_delete_q2') }}</div>
         </q-card-section>
         <q-card-actions class="botoesModal">
           <q-btn
             class="modalBTN"
-            label="Excluir"
+            :label="$t('BooksPage.delete_button')"
             color="negative"
             @click="deletarLivroConfirmado"
           />
           <q-btn
             class="modalBTN"
-            label="Voltar"
+            :label="$t('BooksPage.back_button')"
             flat
             @click="modalExcluir = false"
           />
@@ -195,17 +199,16 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from "vue";
+import { ref, onMounted, computed, watch } from "vue"; // Incluindo 'watch' e 'computed'
 import { useQuasar } from "quasar";
+import { useI18n } from 'vue-i18n'; // <-- Importar i18n
 import LivrosService from "src/services/livrosService";
 
 const $q = useQuasar();
+const { t, locale } = useI18n(); // <-- Injetar 't' e 'locale'
 
 // --- ADICIONADO PARA VALIDAÇÃO MANUAL ---
 const errosCadastro = ref({});
-// O ref 'formLivro' do Q-Form não é mais estritamente necessário para a validação,
-// mas pode ser mantido se quiser usar o Q-Form no futuro. Por enquanto, a
-// validação será feita manualmente.
 // ----------------------------------------
 
 // --- Reatividade de Dados e Tabela
@@ -231,19 +234,18 @@ const salvando = ref(false);
 const modalExcluir = ref(false);
 const livroParaDeletarId = ref(null);
 
-// Colunas da Tabela
-const columns = [
-  
+// Colunas da Tabela (COMPUTED para reatividade do idioma)
+const columns = computed(() => [
   {
     name: "name",
-    label: "Título",
+    label: t('BooksPage.column_title'),
     field: "name",
     align: "left",
     sortable: true,
   },
   {
     name: "author",
-    label: "Autor",
+    label: t('BooksPage.column_author'),
     field: "author",
     align: "left",
     sortable: true,
@@ -251,50 +253,47 @@ const columns = [
   // Formatando a data para exibir apenas AAAA-MM-DD
   {
     name: "launchDate",
-    label: "Lançamento",
+    label: t('BooksPage.column_launch_date'),
     field: "launchDate",
     align: "center",
     sortable: true,
-    format: (val) => (val ? val.substring(0, 10) : "N/A"),
+    format: (val) => (val ? val.substring(0, 10) : t('BooksPage.not_applicable')),
   },
   {
     name: "totalQuantity",
-    label: "Total",
+    label: t('BooksPage.column_total'),
     field: "totalQuantity",
     align: "center",
     sortable: true,
   },
   {
     name: "totalInUse",
-    label: "Em Uso",
+    label: t('BooksPage.column_in_use'),
     field: "totalInUse",
     align: "center",
     sortable: true,
   },
   {
     name: "publisher",
-    label: "Editora",
-    field: (row) => row.publisher?.name || "N/A",
+    label: t('BooksPage.column_publisher'),
+    field: (row) => row.publisher?.name || t('BooksPage.not_applicable'),
     align: "left",
     sortable: true,
   },
-];
+]);
 
-// --- Funções de Validação Manual (Copiadas/Adaptadas de Locatários) ---
+// --- Funções de Validação Manual (Mantidas) ---
 
 const validarCampo = (campo) => {
-  // Para inputs de texto/data:
   if (
     campo !== "publisherName" &&
     (!livroForm.value[campo] || livroForm.value[campo].toString().trim() === "")
   ) {
     errosCadastro.value[campo] = true;
   }
-  // Para Q-Select e números (que podem ser 0 ou null)
   else if (campo === "publisherName" && !livroForm.value[campo]) {
     errosCadastro.value[campo] = true;
   }
-  // Para quantidade (verifica se é nulo/vazio OU se é zero ou negativo)
   else if (
     campo === "totalQuantity" &&
     (!livroForm.value[campo] ||
@@ -311,17 +310,11 @@ const validarFormulario = () => {
   errosCadastro.value = {};
   let valido = true;
 
-  // Lista de campos OBRIGATÓRIOS do Livro
   const camposObrigatorios = [
-    "name",
-    "author",
-    "launchDate",
-    "totalQuantity",
-    "publisherName",
+    "name", "author", "launchDate", "totalQuantity", "publisherName",
   ];
 
   camposObrigatorios.forEach((campo) => {
-    // Validação básica para campos de texto/select
     if (
       !livroForm.value[campo] ||
       livroForm.value[campo].toString().trim() === ""
@@ -329,7 +322,6 @@ const validarFormulario = () => {
       errosCadastro.value[campo] = true;
       valido = false;
     }
-    // Validação específica para quantidade (deve ser um número > 0)
     if (
       campo === "totalQuantity" &&
       (livroForm.value.totalQuantity <= 0 ||
@@ -342,9 +334,7 @@ const validarFormulario = () => {
   return valido;
 };
 
-// -----------------------------------------------------------------------
-
-// --- Funções de API
+// --- Funções de API (Notificações traduzidas)
 
 async function carregarTudo() {
   carregando.value = true;
@@ -356,9 +346,9 @@ async function carregarTudo() {
     console.error("Falha geral ao carregar dados:", error);
     $q.notify({
       type: "negative",
-      message:
-        error.message ||
-        "Erro ao carregar dados da API. Verifique o servidor/rede.",
+      // Usa $t()
+      message: error.message || t('BooksPage.error_load_default'),
+      caption: error.response?.data?.message || t('BooksPage.error_connection'),
     });
     livros.value = [];
   } finally {
@@ -366,7 +356,7 @@ async function carregarTudo() {
   }
 }
 
-// --- Funções de Modal
+// --- Funções de Modal (Mantidas)
 
 function limparFormulario() {
   livroForm.value = {
@@ -378,7 +368,7 @@ function limparFormulario() {
     totalInUse: 0,
     publisherName: "",
   };
-  errosCadastro.value = {}; // IMPORTANTE: Limpar os erros
+  errosCadastro.value = {};
 }
 
 function fecharModal() {
@@ -394,7 +384,7 @@ function abrirModalCadastro() {
 
 function abrirModalEdicao(livro) {
   editando.value = true;
-  errosCadastro.value = {}; // Limpar erros na edição
+  errosCadastro.value = {};
   const launchDateString = livro.launchDate
     ? livro.launchDate.substring(0, 10)
     : "";
@@ -411,15 +401,16 @@ function abrirModalEdicao(livro) {
   modalAberto.value = true;
 }
 
-// --- FUNÇÃO DE CADASTRO/ATUALIZAÇÃO COM VALIDAÇÃO MANUAL ---
+// --- FUNÇÃO DE CADASTRO/ATUALIZAÇÃO COM VALIDAÇÃO MANUAL (Notificações traduzidas)
 async function salvarLivro() {
   // 1. VALIDAÇÃO: Chama a função manual que marca os campos vazios
   if (!validarFormulario()) {
     $q.notify({
       type: "warning",
-      message: "Preencha todos os campos obrigatórios para salvar.",
+      // Usa $t()
+      message: t('BooksPage.validation_fill_all'),
     });
-    return; // Para a execução se a validação falhar
+    return;
   }
 
   // 2. SALVAMENTO (se o formulário for válido)
@@ -427,16 +418,18 @@ async function salvarLivro() {
   try {
     if (editando.value) {
       await LivrosService.atualizar(livroForm.value.id, livroForm.value);
-      $q.notify({ type: "positive", message: "Livro atualizado com sucesso!" });
+      // Usa $t()
+      $q.notify({ type: "positive", message: t('BooksPage.success_update') });
     } else {
       await LivrosService.cadastrar(livroForm.value);
-      $q.notify({ type: "positive", message: "Livro cadastrado com sucesso!" });
+      // Usa $t()
+      $q.notify({ type: "positive", message: t('BooksPage.success_register') });
     }
 
     await carregarTudo();
     fecharModal();
   } catch (error) {
-    let errorMessage = error.message || "Erro ao salvar o livro.";
+    let errorMessage = t('BooksPage.error_save_default');
 
     if (error.response?.data?.detail) {
       errorMessage = error.response.data.detail;
@@ -451,7 +444,7 @@ async function salvarLivro() {
   }
 }
 
-// --- Funções de Exclusão
+// --- Funções de Exclusão (Notificações traduzidas)
 
 function confirmarExclusao(id) {
   livroParaDeletarId.value = id;
@@ -463,14 +456,15 @@ async function deletarLivroConfirmado() {
   carregando.value = true;
   try {
     await LivrosService.deletar(livroParaDeletarId.value);
-    $q.notify({ type: "positive", message: "Livro deletado com sucesso!" });
+    // Usa $t()
+    $q.notify({ type: "positive", message: t('BooksPage.success_delete') });
     await carregarTudo();
   } catch (error) {
-    let errorMessage = error.message || "Erro ao deletar o livro.";
+    let errorMessage = t('BooksPage.error_delete_default');
 
     if (error.response?.status === 400) {
-      errorMessage =
-        "Não foi possível deletar o livro. Ele está vinculado a um ou mais aluguéis ativos.";
+      // Usa $t() para mensagem de erro específica
+      errorMessage = t('BooksPage.error_delete_linked');
     } else if (error.response?.data?.detail) {
       errorMessage = error.response.data.detail;
     }
@@ -484,8 +478,18 @@ async function deletarLivroConfirmado() {
   }
 }
 
-// --- Inicialização
+// --- Inicialização e Watcher
+
 onMounted(() => {
   carregarTudo();
+});
+
+// Watcher para reatividade do idioma na tela
+watch(locale, () => {
+    $q.notify({ 
+      type: 'info', 
+      message: t('general.language_updated'), 
+      timeout: 1000 
+    });
 });
 </script>

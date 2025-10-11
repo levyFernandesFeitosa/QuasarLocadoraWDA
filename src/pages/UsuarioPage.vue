@@ -5,32 +5,28 @@
       style="background-color: #274e55; margin-bottom: 2%; border-radius: 2vh"
     >
       <div class="row items-center q-col-gutter-sm">
-        <!-- Título: ocupa a linha toda no mobile, só metade no desktop -->
         <div class="col-12 col-md-6">
           <div class="titulo q-mb-sm flex items-center">
             <q-icon name="manage_accounts" size="32px" class="q-mr-sm" color="primary" />
-            Usuários
+            {{ $t('UsersPage.title') }}
           </div>
         </div>
 
-        <!-- Botão -->
         <div class="col-6 col-md-2">
           <q-btn
             class="CadastroBTN"
-            label="Cadastrar"
+            :label="$t('UsersPage.register_button')"
             color="primary"
             @click="abrirModalCadastro"
           />
         </div>
 
-        <!-- Input -->
         <div class="col-6 col-md-4">
           <q-input
             class="pesquisaALL"
             standout
             v-model="pesquisa"
-            label="Pesquisar Usuário"
-            
+            :label="$t('UsersPage.search_placeholder')"
           >
             <template v-slot:append>
               <q-icon name="search" />
@@ -39,24 +35,32 @@
         </div>
       </div>
     </div>
+    
     <q-table
       :rows="usuariosFiltrados"
       :columns="columns"
       row-key="id"
       :rows-per-page-options="[5]"
+      :loading="loading"
     >
       <template v-slot:header="props">
         <q-tr :props="props" class="linha-destacada">
           <q-th v-for="col in props.cols" :key="col.name" :props="props">
             {{ col.label }}
           </q-th>
-          <q-th>Ações</q-th>
+          <q-th>{{ $t('UsersPage.actions_header') }}</q-th>
         </q-tr>
       </template>
+      
       <template v-slot:body="props">
         <q-tr :props="props">
           <q-td v-for="col in props.cols" :key="col.name" :props="props">
-            {{ col.value }}
+            <span v-if="col.name === 'role'">
+                {{ roleMap[col.value] || col.value }}
+            </span>
+            <span v-else>
+                {{ col.value }}
+            </span>
           </q-td>
           <q-td>
             <q-btn
@@ -64,6 +68,7 @@
               flat
               icon="edit"
               color="primary"
+              :tooltip="$t('UsersPage.tooltip_edit')"
               @click="editarUsuario(props.row)"
             />
             <q-btn
@@ -71,96 +76,149 @@
               flat
               icon="delete"
               color="negative"
+              :tooltip="$t('UsersPage.tooltip_delete')"
               @click="confirmarExcluir(props.row)"
             />
           </q-td>
         </q-tr>
       </template>
+      
+      <template v-slot:loading>
+        <q-inner-loading showing color="primary" :label="$t('UsersPage.loading_users')" />
+      </template>
     </q-table>
 
-    <!-- Modal Cadastro -->
     <q-dialog v-model="modalCadastro">
       <q-card class="modal">
-        <q-card-section class="conteudoModal">
-          <div class="tituloModal">Cadastrar Locatário</div>
-          <q-input
-            class="inputModal" outlined
-            v-model="novoUsuario.nome"
-            label="Nome do Usuário"
-            required
-          />
-          <q-input class="inputModal" outlined v-model="novoUsuario.email" label="Email" required />
-          <q-input
-            class="inputModal" outlined
-            v-model="novoUsuario.senha"
-            label="Senha"
-            type="password"
-            required
-          />
-          <q-select
-            class="inputModalSelect" outlined
-            v-model="novoUsuario.tipo"
-            :options="['USER', 'ADMIN']"
-            label="Tipo de Usuário"
-            required
-          />
-        </q-card-section>
-        <q-card-actions class="botoesModal">
-          <q-btn class="modalBTN" label="Cadastrar" color="primary" @click="cadastrarUsuario" />
-          <q-btn class="modalBTN" label="Cancelar" @click="modalCadastro = false" />
-        </q-card-actions>
+        <q-form @submit.prevent="cadastrarUsuario">
+            <q-card-section class="conteudoModal">
+            <div class="tituloModal">{{ $t('UsersPage.modal_register_title') }}</div>
+            <q-input
+                class="inputModal" outlined
+                v-model="novoUsuario.nome"
+                :label="$t('UsersPage.input_name_label')"
+                required
+            />
+            <q-input 
+                class="inputModal" outlined 
+                v-model="novoUsuario.email" 
+                :label="$t('UsersPage.input_email_label')" 
+                type="email" 
+                required 
+            />
+            <q-input
+                class="inputModal" outlined
+                v-model="novoUsuario.senha"
+                :label="$t('UsersPage.input_password_label')"
+                type="password"
+                required
+            />
+            <q-select
+                class="inputModalSelect" outlined
+                v-model="novoUsuario.tipo"
+                :options="roleOptionsComputed"
+                option-value="value"
+                option-label="label"
+                emit-value
+                map-options
+                :label="$t('UsersPage.input_role_label')"
+                required
+            />
+            </q-card-section>
+            <q-card-actions class="botoesModal">
+            <q-btn 
+                class="modalBTN" 
+                :label="$t('UsersPage.register_button')" 
+                color="primary" 
+                type="submit" 
+            />
+            <q-btn 
+                class="modalBTN" 
+                :label="$t('UsersPage.cancel_button')" 
+                @click="modalCadastro = false" 
+            />
+            </q-card-actions>
+        </q-form>
       </q-card>
     </q-dialog>
 
-    <!-- Modal Editar -->
     <q-dialog v-model="modalEditar">
       <q-card class="modal">
-        <q-card-section class="conteudoModal">
-          <div class="tituloModal">Cadastrar Locatário</div>
-          <q-input
-            class="inputModal" outlined
-            v-model="usuarioEditar.nome"
-            label="Nome do Usuário"
-            required
-          />
-          <q-input class="inputModal" outlined v-model="usuarioEditar.email" label="Email" required />
-          <q-input
-            class="inputModal" outlined
-            v-model="usuarioEditar.senha"
-            label="Nova Senha (Opcional)"
-            type="password"
-          />
-          <q-input
-            class="inputModal" 
-            v-model="usuarioEditar.confirmarSenha"
-            label="Confirmar Nova Senha"
-            type="password"
-          />
-          <q-select
-            class="inputModalSelect" outlined
-            v-model="usuarioEditar.tipo"
-            :options="['USER', 'ADMIN']"
-            label="Tipo de Usuário"
-            required
-          />
-        </q-card-section>
-        <q-card-actions class="botoesModal">
-          <q-btn class="modalBTN" label="Atualizar" color="primary" @click="atualizarUsuario" />
-          <q-btn class="modalBTN" label="Fechar" @click="modalEditar = false" />
-        </q-card-actions>
+        <q-form @submit.prevent="atualizarUsuario">
+            <q-card-section class="conteudoModal">
+            <div class="tituloModal">{{ $t('UsersPage.modal_update_title') }}</div>
+            <q-input
+                class="inputModal" outlined
+                v-model="usuarioEditar.nome"
+                :label="$t('UsersPage.input_name_label')"
+                required
+            />
+            <q-input 
+                class="inputModal" outlined 
+                v-model="usuarioEditar.email" 
+                :label="$t('UsersPage.input_email_label')" 
+                type="email" 
+                required 
+            />
+            <q-input
+                class="inputModal" outlined
+                v-model="usuarioEditar.senha"
+                :label="$t('UsersPage.input_new_password_label')"
+                type="password"
+            />
+            <q-input
+                class="inputModal" outlined 
+                v-model="usuarioEditar.confirmarSenha"
+                :label="$t('UsersPage.input_confirm_password_label')"
+                type="password"
+            />
+            <q-select
+                class="inputModalSelect" outlined
+                v-model="usuarioEditar.tipo"
+                :options="roleOptionsComputed"
+                option-value="value"
+                option-label="label"
+                emit-value
+                map-options
+                :label="$t('UsersPage.input_role_label')"
+                required
+            />
+            </q-card-section>
+            <q-card-actions class="botoesModal">
+            <q-btn 
+                class="modalBTN" 
+                :label="$t('UsersPage.update_button')" 
+                color="primary" 
+                type="submit"
+            />
+            <q-btn 
+                class="modalBTN" 
+                :label="$t('UsersPage.close_button')" 
+                @click="modalEditar = false" 
+            />
+            </q-card-actions>
+        </q-form>
       </q-card>
     </q-dialog>
 
-    <!-- Modal Confirmar Excluir -->
     <q-dialog v-model="modalExcluir">
       <q-card class="modalCertificando" style="max-width: 35%; width: 100%;">
         <q-card-section class="conteudoModal">
-          <div class="text-h6">Certeza que deseja excluir esse Usuário?</div>
-          <div class="text-h6">Após essa ação não haverá retorno.</div>
+          <div class="text-h6">{{ $t('UsersPage.confirm_delete_q1') }}</div>
+          <div class="text-h6">{{ $t('UsersPage.confirm_delete_q2') }}</div>
         </q-card-section>
         <q-card-actions class="botoesModal">
-          <q-btn class="modalBTN" label="Excluir" color="negative" @click="excluirUsuario" />
-          <q-btn class="modalBTN" label="Voltar" @click="modalExcluir = false" />
+          <q-btn 
+            class="modalBTN" 
+            :label="$t('UsersPage.delete_button')" 
+            color="negative" 
+            @click="excluirUsuario" 
+          />
+          <q-btn 
+            class="modalBTN" 
+            :label="$t('UsersPage.back_button')" 
+            @click="modalExcluir = false" 
+          />
         </q-card-actions>
       </q-card>
     </q-dialog>
@@ -168,11 +226,26 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed, reactive } from 'vue';
+import { ref, onMounted, computed, watch } from 'vue';
 import { useQuasar } from 'quasar';
+import { useI18n } from 'vue-i18n'; // <-- Importar i18n
 import { usuarioService } from 'src/services/usuarioService';
 
 const $q = useQuasar();
+const { t, locale } = useI18n(); // <-- Injetar 't' e 'locale'
+
+// --- Mapeamento de Funções (Role Map) ---
+const roleMap = computed(() => ({
+    USER: t('UsersPage.role_user'),
+    ADMIN: t('UsersPage.role_admin'),
+}));
+
+// Opções do q-select (Computed para reatividade do idioma)
+const roleOptionsComputed = computed(() => [
+    { label: t('UsersPage.role_user'), value: 'USER' },
+    { label: t('UsersPage.role_admin'), value: 'ADMIN' },
+]);
+
 
 // --- Estado da Aplicação ---
 const allUsers = ref([]); // Lista completa de usuários da API
@@ -180,14 +253,16 @@ const loading = ref(false);
 
 // --- Estado da Pesquisa e Tabela ---
 const pesquisa = ref(''); // Mapeia para o v-model do q-input
-const columns = [ // Colunas da Q-Table
-  { name: 'name', label: 'Nome', field: 'name', sortable: true, align: 'left' },
-  { name: 'email', label: 'E-mail', field: 'email', sortable: true, align: 'left' },
-  { name: 'role', label: 'Permissão', field: 'role', sortable: true, align: 'left' },
-  // A coluna "Ações" não precisa ser definida aqui, pois é um slot customizado no template.
-];
 
-// --- Lógica da Q-Table e Pesquisa ---
+// Colunas da Q-Table (COMPUTED para reatividade do idioma)
+const columns = computed(() => [
+    { name: 'name', label: t('UsersPage.column_name'), field: 'name', sortable: true, align: 'left' },
+    { name: 'email', label: t('UsersPage.column_email'), field: 'email', sortable: true, align: 'left' },
+    // Label da Permissão usa i18n, o field continua sendo 'role'
+    { name: 'role', label: t('UsersPage.column_role'), field: 'role', sortable: true, align: 'left' },
+]);
+
+// --- Lógica da Q-Table e Pesquisa (Mantida) ---
 const usuariosFiltrados = computed(() => {
   const term = pesquisa.value.toLowerCase();
   if (!term) {
@@ -201,33 +276,30 @@ const usuariosFiltrados = computed(() => {
   );
 });
 
-// --- Estado dos Modais ---
+// --- Estado dos Modais (Mantido) ---
 const modalCadastro = ref(false);
 const modalEditar = ref(false);
 const modalExcluir = ref(false);
 
-// Objeto para novo cadastro (misto com a API: name, email, password, role)
 const novoUsuario = ref({
-  nome: '', // Mapeia para name
+  nome: '', 
   email: '',
-  senha: '', // Mapeia para password
-  tipo: 'USER', // Mapeia para role, valor padrão
+  senha: '', 
+  tipo: 'USER', // Valor padrão (value)
 });
 
-// Objeto para edição
 const usuarioEditar = ref({
   id: null,
-  nome: '', // Mapeia para name
+  nome: '', 
   email: '',
-  senha: '', // Mapeia para password
+  senha: '', 
   confirmarSenha: '',
-  tipo: '', // Mapeia para role
+  tipo: '', 
 });
 
-// Usuário selecionado para exclusão
 const usuarioParaExcluir = ref(null);
 
-// --- Chamadas da API (Serviço) ---
+// --- Chamadas da API (Serviço) - Notificações traduzidas ---
 
 /**
  * Carrega a lista de usuários ao iniciar a página.
@@ -236,13 +308,13 @@ async function fetchUsers() {
   loading.value = true;
   try {
     const users = await usuarioService.listarUsuarios();
-    // A API retorna o campo "role" em maiúsculo (ADMIN/USER), então não é necessário ajuste aqui.
     allUsers.value = users;
   } catch (error) {
     console.error('Erro ao buscar usuários:', error);
     $q.notify({
       type: 'negative',
-      message: 'Falha ao carregar usuários. ' + (error.response?.data?.message || 'Erro de rede.'),
+      // Usa $t()
+      message: t('UsersPage.error_load_default') + (error.response?.data?.message || t('UsersPage.error_network')),
     });
   } finally {
     loading.value = false;
@@ -256,7 +328,8 @@ async function cadastrarUsuario() {
   const { nome, email, senha, tipo } = novoUsuario.value;
 
   if (!nome || !email || !senha) {
-    $q.notify({ type: 'warning', message: 'Preencha todos os campos obrigatórios.' });
+    // Usa $t()
+    $q.notify({ type: 'warning', message: t('UsersPage.validation_fill_all') });
     return;
   }
 
@@ -265,14 +338,14 @@ async function cadastrarUsuario() {
       name: nome,
       email: email,
       password: senha,
-      role: tipo.toUpperCase() // Garante que a role esteja em caixa alta
+      role: tipo.toUpperCase()
     };
     
     await usuarioService.criarUsuario(dados);
 
-    $q.notify({ type: 'positive', message: 'Usuário cadastrado com sucesso!' });
+    // Usa $t()
+    $q.notify({ type: 'positive', message: t('UsersPage.success_register') });
     modalCadastro.value = false;
-    // Limpa e recarrega os dados
     resetNovoUsuario(); 
     await fetchUsers(); 
     
@@ -280,7 +353,8 @@ async function cadastrarUsuario() {
     console.error('Erro ao cadastrar:', error);
     $q.notify({ 
       type: 'negative', 
-      message: 'Erro ao cadastrar usuário. ' + (error.response?.data?.message || 'Verifique o console.') 
+      // Usa $t()
+      message: t('UsersPage.error_register_default') + (error.response?.data?.message || t('UsersPage.error_check_console'))
     });
   }
 }
@@ -309,11 +383,13 @@ async function atualizarUsuario() {
   const { id, nome, email, senha, confirmarSenha, tipo } = usuarioEditar.value;
 
   if (senha && senha !== confirmarSenha) {
-    $q.notify({ type: 'warning', message: 'As novas senhas não conferem!' });
+    // Usa $t()
+    $q.notify({ type: 'warning', message: t('UsersPage.validation_password_mismatch') });
     return;
   }
   if (!nome || !email) {
-    $q.notify({ type: 'warning', message: 'Nome e email são obrigatórios.' });
+    // Usa $t()
+    $q.notify({ type: 'warning', message: t('UsersPage.validation_name_email_required') });
     return;
   }
 
@@ -330,15 +406,14 @@ async function atualizarUsuario() {
     
     await usuarioService.atualizarUsuario(id, dadosAtualizados);
     
-    $q.notify({ type: 'positive', message: 'Usuário atualizado com sucesso!' });
+    // Usa $t()
+    $q.notify({ type: 'positive', message: t('UsersPage.success_update') });
     modalEditar.value = false;
 
-    // Otimização: atualiza o array localmente
+    // Otimização: atualiza o array localmente (Mantido)
     const index = allUsers.value.findIndex(u => u.id === id);
     if (index !== -1) {
-        // Usa o spread operator para garantir a reatividade e merge dos dados
         allUsers.value[index] = { ...allUsers.value[index], ...dadosAtualizados };
-        // Atualiza a visualização, preservando a reatividade do Vue
         allUsers.value = [...allUsers.value]; 
     }
 
@@ -346,7 +421,8 @@ async function atualizarUsuario() {
     console.error('Erro ao atualizar:', error);
     $q.notify({ 
       type: 'negative', 
-      message: 'Erro ao atualizar usuário. ' + (error.response?.data?.message || 'Verifique o console.') 
+      // Usa $t()
+      message: t('UsersPage.error_update_default') + (error.response?.data?.message || t('UsersPage.error_check_console'))
     });
   }
 }
@@ -369,23 +445,25 @@ async function excluirUsuario() {
   try {
     await usuarioService.deletarUsuario(user.id);
 
-    $q.notify({ type: 'positive', message: 'Usuário deletado com sucesso!' });
+    // Usa $t()
+    $q.notify({ type: 'positive', message: t('UsersPage.success_delete') });
     modalExcluir.value = false;
     usuarioParaExcluir.value = null;
 
-    // Otimização: remove o usuário localmente
+    // Otimização: remove o usuário localmente (Mantido)
     allUsers.value = allUsers.value.filter(u => u.id !== user.id);
 
   } catch (error) {
     console.error('Erro ao deletar:', error);
     $q.notify({ 
       type: 'negative', 
-      message: 'Erro ao deletar usuário. ' + (error.response?.data?.message || 'Verifique o console.') 
+      // Usa $t()
+      message: t('UsersPage.error_delete_default') + (error.response?.data?.message || t('UsersPage.error_check_console'))
     });
   }
 }
 
-// --- Funções de UI/Abertura de Modais ---
+// --- Funções de UI/Abertura de Modais (Mantidas) ---
 
 function abrirModalCadastro() {
   resetNovoUsuario();
@@ -404,5 +482,18 @@ function resetNovoUsuario() {
 // --- Ciclo de Vida: Carregar dados ao montar o componente ---
 onMounted(() => {
   fetchUsers();
+});
+
+// Watcher para reatividade do idioma na tela
+watch(locale, () => {
+    // Recarrega todos os dados para que as colunas e o roleMap sejam atualizados.
+    // Não é estritamente necessário recarregar os *dados* da API, mas sim re-renderizar a tabela
+    // e suas colunas, o que é feito pelo `computed`. O notify é mais para UX.
+    fetchUsers(); 
+    $q.notify({
+      type: 'info',
+      message: t('general.language_updated'),
+      timeout: 1000
+    });
 });
 </script>

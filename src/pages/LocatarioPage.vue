@@ -5,32 +5,28 @@
       style="background-color: #274e55; margin-bottom: 2%; border-radius: 2vh"
     >
       <div class="row items-center q-col-gutter-sm">
-        <!-- Título: ocupa a linha toda no mobile, só metade no desktop -->
         <div class="col-12 col-md-6">
           <div class="titulo q-mb-sm flex items-center">
             <q-icon name="people" size="32px" class="q-mr-sm" color="primary" />
-            Locatários
+            {{ $t('RentersPage.title') }}
           </div>
         </div>
 
-        <!-- Botão -->
         <div class="col-6 col-md-2">
           <q-btn
             class="CadastroBTN"
-            label="Cadastrar"
+            :label="$t('RentersPage.register_button')"
             color="primary"
             @click="abrirModalCadastro"
           />
         </div>
 
-        <!-- Input -->
         <div class="col-6 col-md-4">
           <q-input
             class="pesquisaALL"
             standout
             v-model="pesquisa"
-            label="Pesquisar locatário"
-            
+            :label="$t('RentersPage.search_placeholder')"
           >
             <template v-slot:append>
               <q-icon name="search" />
@@ -52,13 +48,12 @@
       flat
       bordered
     >
-      <!-- Cabeçalho e corpo normais no desktop -->
       <template v-slot:header="props" v-if="!$q.screen.lt.md">
         <q-tr :props="props" class="linha-destacada">
           <q-th v-for="col in props.cols" :key="col.name" :props="props">
             {{ col.label }}
           </q-th>
-          <q-th>Ações</q-th>
+          <q-th>{{ $t('RentersPage.actions_header') }}</q-th>
         </q-tr>
       </template>
 
@@ -67,7 +62,7 @@
           <q-td v-for="col in props.cols" :key="col.name" :props="props">
             {{ col.value }}
           </q-td>
-          <q-td >
+          <q-td>
             <q-btn
               dense
               flat
@@ -86,7 +81,6 @@
         </q-tr>
       </template>
 
-      <!-- Versão mobile em formato de card -->
       <template v-slot:item="props" v-else>
         <q-card class="q-mb-md card-mobile">
           <q-card-section>
@@ -122,16 +116,15 @@
       </template>
     </q-table>
 
-    <!-- Modal Cadastro -->
     <q-dialog v-model="modalCadastro">
       <q-card class="modal " id="modalGrande">
-        <div class="tituloModal">Cadastrar Locatário</div>
+        <div class="tituloModal">{{ $t('RentersPage.modal_register_title') }}</div>
         <q-card-section class="conteudoModal">
           <q-input
             class="inputModal"
             outlined
             v-model="novoLocatario.nome"
-            label="Nome do Locatário"
+            :label="$t('RentersPage.input_name_label')"
             :error="errosCadastro.nome"
             error-color="negative"
             @input="validarCampo('nome')"
@@ -141,7 +134,7 @@
             class="inputModal"
             outlined
             v-model="novoLocatario.email"
-            label="Email"
+            :label="$t('RentersPage.input_email_label')"
             type="email"
             :error="errosCadastro.email"
             error-color="negative"
@@ -152,7 +145,7 @@
             class="inputModal"
             outlined
             v-model="novoLocatario.telefone"
-            label="Telefone"
+            :label="$t('RentersPage.input_phone_label')"
             :error="errosCadastro.telefone"
             error-color="negative"
             @input="validarCampo('telefone')"
@@ -162,7 +155,7 @@
             class="inputModal"
             outlined
             v-model="novoLocatario.cpf"
-            label="CPF"
+            :label="$t('RentersPage.input_cpf_label')"
             :error="errosCadastro.cpf"
             error-color="negative"
             @input="validarCampo('cpf')"
@@ -172,7 +165,7 @@
             class="inputModal"
             outlined
             v-model="novoLocatario.endereco"
-            label="Endereço"
+            :label="$t('RentersPage.input_address_label')"
             :error="errosCadastro.endereco"
             error-color="negative"
             @input="validarCampo('endereco')"
@@ -182,37 +175,36 @@
         <q-card-actions class="botoesModal">
           <q-btn
             class="modalBTN"
-            label="Cadastrar"
+            :label="$t('RentersPage.register_button')"
             color="primary"
             @click="cadastrarLocatario"
           />
           <q-btn
             class="modalBTN"
-            label="Cancelar"
+            :label="$t('RentersPage.cancel_button')"
             @click="modalCadastro = false"
           />
         </q-card-actions>
       </q-card>
     </q-dialog>
 
-    <!-- Modal Editar -->
     <q-dialog v-model="modalEditar">
       <q-card class="modal" id="modalGrande">
-        <div class="tituloModal">Atualizar Locatário</div>
+        <div class="tituloModal">{{ $t('RentersPage.modal_update_title') }}</div>
         <q-card-section class="conteudoModal">
           
           <q-input
             class="inputModal"
             v-model="locatarioEditar.nome"
-            label="Nome do Locatário"
+            :label="$t('RentersPage.input_name_label')"
             :color="errosCadastro.nome ? 'negative' : 'primary'"
-            error-message="Campo obrigatório"
+            :error-message="$t('RentersPage.validation_required')"
             required
           />
           <q-input
             class="inputModal"
             v-model="locatarioEditar.email"
-            label="Email"
+            :label="$t('RentersPage.input_email_label')"
             type="email"
             :error="errosCadastro.email"
             required
@@ -220,21 +212,21 @@
           <q-input
             class="inputModal"
             v-model="locatarioEditar.telefone"
-            label="Telefone"
+            :label="$t('RentersPage.input_phone_label')"
             :error="errosCadastro.telefone"
             required
           />
           <q-input
             class="inputModal"
             v-model="locatarioEditar.cpf"
-            label="CPF"
+            :label="$t('RentersPage.input_cpf_label')"
             :error="errosCadastro.cpf"
             required
           />
           <q-input
             class="inputModal"
             v-model="locatarioEditar.endereco"
-            label="Endereço"
+            :label="$t('RentersPage.input_address_label')"
             :error="errosCadastro.endereco"
             required
           />
@@ -242,32 +234,31 @@
         <q-card-actions class="botoesModal">
           <q-btn
             class="modalBTN"
-            label="Atualizar"
+            :label="$t('RentersPage.update_button')"
             color="primary"
             @click="atualizarLocatario"
           />
-          <q-btn class="modalBTN" label="Fechar" @click="modalEditar = false" />
+          <q-btn class="modalBTN" :label="$t('RentersPage.close_button')" @click="modalEditar = false" />
         </q-card-actions>
       </q-card>
     </q-dialog>
 
-    <!-- Modal Confirmar Excluir -->
     <q-dialog v-model="modalExcluir">
       <q-card class="modalCertificando" style="max-width: 35%; width: 100%">
         <q-card-section class="conteudoModal">
-          <div class="text-h6">Certeza que deseja excluir esse locatário?</div>
-          <div class="text-h6">Após essa ação não haverá retorno.</div>
+          <div class="text-h6">{{ $t('RentersPage.confirm_delete_q1') }}</div>
+          <div class="text-h6">{{ $t('RentersPage.confirm_delete_q2') }}</div>
         </q-card-section>
         <q-card-actions class="botoesModal">
           <q-btn
             class="modalBTN"
-            label="Excluir"
+            :label="$t('RentersPage.delete_button')"
             color="negative"
             @click="excluirLocatario"
           />
           <q-btn
             class="modalBTN"
-            label="Voltar"
+            :label="$t('RentersPage.back_button')"
             @click="modalExcluir = false"
           />
         </q-card-actions>
@@ -279,9 +270,11 @@
 <script setup>
 import { ref, onMounted, computed, watch } from 'vue';
 import { useQuasar } from 'quasar';
-import LocatarioService from 'src/services/locatarioService'; // O serviço que criamos
+import { useI18n } from 'vue-i18n';
+import LocatarioService from 'src/services/locatarioService';
 
 const $q = useQuasar();
+const { t, locale } = useI18n(); // Injetar 't' e 'locale'
 
 // 1. Variáveis de Estado (Modais e Formulários)
 const allLocatarios = ref([]);
@@ -289,41 +282,30 @@ const loading = ref(false);
 const pesquisa = ref('');
 const locatarioParaExcluir = ref(null);
 
-// Estado do Modal de Cadastro
 const modalCadastro = ref(false);
 const novoLocatario = ref({
-    nome: '',
-    email: '',
-    telefone: '',
-    cpf: '',
-    endereco: '',
+    nome: '', email: '', telefone: '', cpf: '', endereco: '',
 });
-const errosCadastro = ref({}); // Para validar os inputs
+const errosCadastro = ref({});
 
-// Estado do Modal de Edição
 const modalEditar = ref(false);
 const locatarioEditar = ref({
-    id: null,
-    nome: '',
-    email: '',
-    telefone: '',
-    cpf: '',
-    endereco: '',
+    id: null, nome: '', email: '', telefone: '', cpf: '', endereco: '',
 });
 const modalExcluir = ref(false);
 
-// 2. Colunas da Tabela (Mantido do seu código)
-const columns = [
-    { name: 'name', label: 'Nome', field: 'name', align: 'left', sortable: true },
-    { name: 'email', label: 'E-mail', field: 'email', align: 'left', sortable: true },
-    { name: 'telephone', label: 'Telefone', field: 'telephone', align: 'left' },
-    { name: 'cpf', label: 'CPF', field: 'cpf', align: 'left' },
-    { name: 'address', label: 'Endereço', field: 'address', align: 'left' },
-];
+
+// 2. Colunas da Tabela (COMPUTED para reatividade do idioma)
+const columns = computed(() => [
+    { name: 'name', label: t('RentersPage.column_name'), field: 'name', align: 'left', sortable: true },
+    { name: 'email', label: t('RentersPage.column_email'), field: 'email', align: 'left', sortable: true },
+    { name: 'telephone', label: t('RentersPage.column_phone'), field: 'telephone', align: 'left' },
+    { name: 'cpf', label: t('RentersPage.column_cpf'), field: 'cpf', align: 'left' },
+    { name: 'address', label: t('RentersPage.column_address'), field: 'address', align: 'left' },
+]);
 
 // --- 3. Funções de UI (Modais e Validação) ---
 
-// FUNÇÃO RESTAURADA: Valida um campo individualmente (para o @input)
 const validarCampo = (campo) => {
     if (!novoLocatario.value[campo] || novoLocatario.value[campo].trim() === '') {
         errosCadastro.value[campo] = true;
@@ -332,12 +314,10 @@ const validarCampo = (campo) => {
     }
 };
 
-// NOVA FUNÇÃO: Valida o formulário inteiro antes de enviar
 const validarFormulario = () => {
     errosCadastro.value = {};
     let valido = true;
     
-    // Lista de campos obrigatórios
     const camposObrigatorios = ['nome', 'email', 'telefone', 'cpf', 'endereco'];
 
     camposObrigatorios.forEach(campo => {
@@ -350,14 +330,12 @@ const validarFormulario = () => {
 };
 
 const abrirModalCadastro = () => {
-    // Limpa o formulário antes de abrir
     novoLocatario.value = { nome: '', email: '', telefone: '', cpf: '', endereco: '' };
-    errosCadastro.value = {}; // Limpa os erros!
+    errosCadastro.value = {};
     modalCadastro.value = true;
 };
 
 const editarLocatario = (locatario) => {
-    // Preenche o formulário com os dados do locatário
     locatarioEditar.value = {
         id: locatario.id,
         nome: locatario.name,
@@ -374,7 +352,6 @@ const confirmarExcluir = (locatario) => {
     modalExcluir.value = true;
 };
 
-
 // --- 4. Lógica CRUD (Chama o Service) ---
 
 const fetchLocatarios = async () => {
@@ -383,7 +360,8 @@ const fetchLocatarios = async () => {
         const data = await LocatarioService.getAll();
         allLocatarios.value = data;
     } catch (error) {
-        const errorMessage = error.message || 'Erro ao carregar a lista de locatários. Verifique a API.';
+        const fallbackMsg = t('RentersPage.error_load_default');
+        const errorMessage = error.message || fallbackMsg;
         $q.notify({ 
             type: 'negative', 
             message: errorMessage,
@@ -395,13 +373,11 @@ const fetchLocatarios = async () => {
 };
 
 const cadastrarLocatario = async () => {
-    // 1. VALIDAÇÃO DO FRONTEND
     if (!validarFormulario()) {
-        $q.notify({ type: 'warning', message: 'Preencha todos os campos obrigatórios para cadastrar.' });
-        return; // Sai da função se a validação falhar
+        $q.notify({ type: 'warning', message: t('RentersPage.validation_fill_all') });
+        return;
     }
     
-    // Mapeia os dados para a API
     const dataAPI = {
         name: novoLocatario.value.nome,
         email: novoLocatario.value.email,
@@ -412,14 +388,11 @@ const cadastrarLocatario = async () => {
 
     try {
         await LocatarioService.create(dataAPI);
-        
-        // Notificação de SUCESSO
-        $q.notify({ type: 'positive', message: 'Locatário cadastrado com sucesso!' });
-        
+        $q.notify({ type: 'positive', message: t('RentersPage.success_register') });
         modalCadastro.value = false;
-        fetchLocatarios(); // Recarrega a lista
+        fetchLocatarios();
     } catch (error) {
-        let errorMessage = 'Erro desconhecido ao cadastrar.';
+        let errorMessage = t('RentersPage.error_unknown');
 
         if (error.response && error.response.data) {
             const apiData = error.response.data;
@@ -428,13 +401,12 @@ const cadastrarLocatario = async () => {
             } else if (typeof apiData.detail === 'string') {
                 errorMessage = apiData.detail;
             } else if (error.response.status === 400) {
-                 errorMessage = 'Erro de validação nos dados. Verifique todos os campos.';
+                 errorMessage = t('RentersPage.error_validation');
             }
         } else {
-             errorMessage = error.message || 'Erro na conexão ou no servidor.';
+             errorMessage = error.message || t('RentersPage.error_connection');
         }
 
-        // Notificação de FALHA
         $q.notify({ 
             type: 'negative', 
             message: errorMessage,
@@ -454,20 +426,16 @@ const atualizarLocatario = async () => {
 
     try {
         await LocatarioService.update(locatarioEditar.value.id, dataAPI);
-        
-        // Notificação de SUCESSO
-        $q.notify({ type: 'positive', message: 'Locatário atualizado com sucesso!' });
-        
+        $q.notify({ type: 'positive', message: t('RentersPage.success_update') });
         modalEditar.value = false;
-        fetchLocatarios(); // Recarrega a lista
+        fetchLocatarios();
     } catch (error) {
-         let errorMessage = error.message || 'Erro ao atualizar locatário.';
+         let errorMessage = error.message || t('RentersPage.error_update_default');
 
          if (error.response?.data?.message) {
              errorMessage = error.response.data.message;
          }
 
-         // Notificação de FALHA
          $q.notify({ 
              type: 'negative', 
              message: errorMessage,
@@ -481,32 +449,26 @@ const excluirLocatario = async () => {
 
     try {
         await LocatarioService.delete(locatarioParaExcluir.value.id);
-        
-        // Notificação de SUCESSO
-        $q.notify({ type: 'positive', message: 'Locatário excluído com sucesso!' });
-        
+        $q.notify({ type: 'positive', message: t('RentersPage.success_delete') });
         modalExcluir.value = false;
-        fetchLocatarios(); // Recarrega a lista
+        fetchLocatarios();
     } catch (error) {
-        let errorMessage = 'Erro ao excluir locatário.';
+        let errorMessage = t('RentersPage.error_delete_default');
 
-        // Tratamento específico para o 400 (Bad Request)
         if (error.response?.status === 400) {
-             const apiMessage = error.response.data?.message;
-             
-             if (apiMessage && typeof apiMessage === 'string') {
-                 errorMessage = apiMessage;
-             } else {
-                 // Mensagem para restrições de negócio (locatário com aluguel ativo)
-                 errorMessage = 'Não foi possível deletar o locatário. Ele pode estar vinculado a um aluguel ou a outros registros.';
-             }
+              const apiMessage = error.response.data?.message;
+              
+              if (apiMessage && typeof apiMessage === 'string') {
+                  errorMessage = apiMessage;
+              } else {
+                  errorMessage = t('RentersPage.error_delete_linked');
+              }
         } else if (error.response?.status === 403) {
-            errorMessage = 'Acesso negado. Você não tem permissão para excluir.';
+             errorMessage = t('RentersPage.error_delete_permission');
         } else {
-            errorMessage = error.message || 'Erro inesperado na exclusão.';
+             errorMessage = error.message || t('RentersPage.error_unexpected');
         }
 
-        // Notificação de FALHA
         $q.notify({ 
             type: 'negative', 
             message: errorMessage,
@@ -528,4 +490,13 @@ const locatariosFiltrados = computed(() => {
 });
 
 onMounted(fetchLocatarios);
+
+// Watcher para reatividade do idioma (mantido)
+watch(locale, () => {
+    $q.notify({ 
+      type: 'info', 
+      message: t('general.language_updated'),
+      timeout: 1000 
+    });
+});
 </script>

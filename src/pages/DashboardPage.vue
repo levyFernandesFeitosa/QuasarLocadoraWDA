@@ -1,45 +1,39 @@
 <template>
   <q-page class="dashboard-page q-pa-md bg-grey-1" style="background-color: #edead0;">
     <div class="dashboard">
-      <!-- Estatísticas: Gráficos + Totais -->
       <div class="dashboard-grid">
-        <!-- Gráfico de Pizza -->
         <q-card class="card">
           <q-card-section>
-            <div class="text-h6 q-mb-md">Distribuição de Aluguéis</div>
+            <div class="text-h6 q-mb-md">{{ $t('DashboardPage.Rental_Distribution') }}</div>
             <canvas id="graficoDistribuicaoAlugueis"></canvas>
           </q-card-section>
         </q-card>
 
-        <!-- Gráfico de Barras -->
         <q-card class="card">
           <q-card-section>
-            <div class="text-h6 q-mb-md">Livros Mais Alugados</div>
+            <div class="text-h6 q-mb-md">{{ $t('DashboardPage.Most_Rented_Books') }}</div>
             <canvas id="graficoLivrosMaisAlugados"></canvas>
           </q-card-section>
         </q-card>
 
-        <!-- Totais (empilhados) -->
         <div class="cards-coluna">
           <q-card class="card-total">
             <q-card-section>
-              <div class="text-h6">Total de Aluguéis</div>
+              <div class="text-h6">{{ $t('DashboardPage.Total_Rentals') }}</div>
               <span class="text-h5">{{ totalAlugueis }}</span>
             </q-card-section>
           </q-card>
           <q-card class="card-total">
             <q-card-section>
-              <div class="text-h6">Total de Locatários</div>
+              <div class="text-h6">{{ $t('DashboardPage.Total_Renters') }}</div>
               <span class="text-h5">{{ totalLocatarios }}</span>
             </q-card-section>
           </q-card>
         </div>
       </div>
 
-      <!-- Tabela de Locatários -->
-      <div class="dashboard-extra"  >
+      <div class="dashboard-extra">
         <q-table
-        
           :rows="rows"
           :columns="columns"
           row-key="name"
@@ -53,8 +47,7 @@
               7
           }"
         >
-          <!-- Cabeçalho customizado -->
-          <template v-slot:header="props" >
+          <template v-slot:header="props">
             <q-tr :props="props" class="linha-destacada">
               <q-th v-for="col in props.cols" :key="col.name" :props="props">
                 {{ col.label }}
@@ -62,7 +55,6 @@
             </q-tr>
           </template>
 
-          <!-- Corpo da tabela -->
           <template v-slot:body="props">
             <q-tr :props="props">
               <q-td v-for="col in props.cols" :key="col.name" :props="props">
@@ -80,10 +72,12 @@
 <script setup>
 import { ref, onMounted, computed, watch, nextTick } from 'vue';
 import { useQuasar } from 'quasar';
-import { dashboardService } from 'src/services/dashboardService'; // Assumindo este caminho
-import Chart from 'chart.js/auto'; // Certifique-se de ter instalado: npm install chart.js
+import { useI18n } from 'vue-i18n'; // <-- Importado para tradução
+import { dashboardService } from 'src/services/dashboardService';
+import Chart from 'chart.js/auto';
 
 const $q = useQuasar();
+const { t, locale } = useI18n(); // <-- Injetado 't' para traduzir e 'locale' para reatividade
 
 // --- Estado Bruto da API ---
 const loading = ref(true);
@@ -98,16 +92,15 @@ const alugueisAtrasados = ref(0);
 const totalAlugueis = computed(() => Array.isArray(alugueis.value) ? alugueis.value.length : 0);
 const totalLocatarios = computed(() => Array.isArray(locatarios.value) ? locatarios.value.length : 0);
 
-// --- Colunas da Tabela (Mapeado para :columns="columns" no template) ---
-const columns = [
-  { name: 'nome', label: 'Locatário', field: 'nome', align: 'left', sortable: true },
-  { name: 'totalAlugueis', label: 'Total Aluguéis', field: 'totalAlugueis', align: 'center', sortable: true },
-  { name: 'livrosDevolvidos', label: 'Livros Devolvidos', field: 'livrosDevolvidos', align: 'center', sortable: true },
-];
+// --- Colunas da Tabela (AGORA COMPUTADA para reatividade do idioma) ---
+const columns = computed(() => [
+  { name: 'nome', label: t('DashboardPage.Renter'), field: 'nome', align: 'left', sortable: true },
+  { name: 'totalAlugueis', label: t('DashboardPage.Total_Loans'), field: 'totalAlugueis', align: 'center', sortable: true },
+  { name: 'livrosDevolvidos', label: t('DashboardPage.Rentals_Returned'), field: 'livrosDevolvidos', align: 'center', sortable: true },
+]);
 
 /**
- * Lógica de Processamento de Tabela (Mapeado para :rows="rows" no template)
- * Substitui o mapeamento e a paginação manual do código Vanilla.
+ * Lógica de Processamento de Tabela
  */
 const rows = computed(() => {
   const allAlugueis = alugueis.value;
@@ -150,7 +143,7 @@ function renderCharts() {
       data: {
         labels: livrosLabels,
         datasets: [{
-          label: 'Livros Mais Alugados',
+          label: t('DashboardPage.Most_Rented_Books'), // <-- Traduzindo o Label
           data: livrosData,
           backgroundColor: 'rgba(75, 192, 192, 1)',
           borderColor: 'rgba(75, 192, 192, 1)',
@@ -167,9 +160,14 @@ function renderCharts() {
     chartPizza = new Chart(ctxPizza.getContext('2d'), {
       type: 'pie',
       data: {
-        labels: ['Entregues no Prazo', 'Entregues com Atraso', 'Atualmente Atrasados'],
+        // Rótulos traduzidos com a função 't'
+        labels: [
+          t('DashboardPage.Returned'),
+          t('DashboardPage.Pending'), 
+          t('DashboardPage.Rentals')
+        ],
         datasets: [{
-          label: 'Distribuição de Aluguéis',
+          label: t('DashboardPage.Rental_Distribution'), // <-- Traduzindo o Label
           data: [
             entreguesNoPrazo.value,
             entreguesAtraso.value,
@@ -192,7 +190,6 @@ function renderCharts() {
         responsive: true,
         plugins: {
           legend: {
-            // Regra de layout mobile/desktop com Quasar
             position: $q.screen.lt.md ? 'bottom' : 'bottom' 
           }
         }
@@ -217,7 +214,7 @@ async function loadData() {
     entreguesAtraso.value = data.entreguesAtraso;
     alugueisAtrasados.value = data.alugueisAtrasados;
     
-    // nextTick garante que o DOM esteja atualizado (o canvas exista) antes de desenhar
+    // Renderiza gráficos após carregar os dados
     await nextTick();
     renderCharts();
 
@@ -225,7 +222,7 @@ async function loadData() {
     console.error('Erro no loadData:', error);
     $q.notify({
       type: 'negative',
-      message: 'Falha ao carregar dados da Dashboard.',
+      message: t('general.data_load_error'), // Use uma chave geral para notificação de erro, se existir
       caption: error.response?.data?.message || 'Verifique sua conexão ou a API.',
     });
   } finally {
@@ -237,9 +234,16 @@ onMounted(() => {
   loadData();
 });
 
-// Re-renderiza gráficos ao redimensionar para garantir responsividade e ajuste de legendas
+// 1. Observa a largura da tela para responsividade do Quasar
 watch(() => $q.screen.width, () => {
     setTimeout(renderCharts, 100); 
 });
-</script>
 
+// 2. Observa a mudança de idioma (locale) para re-renderizar os gráficos
+// Os 'columns' já são reativos por serem 'computed'
+watch(locale, () => {
+    // É importante recriar os gráficos pois o Chart.js não atualiza os rótulos automaticamente
+    setTimeout(renderCharts, 100); 
+});
+
+</script>

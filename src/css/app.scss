@@ -520,3 +520,13 @@ img {
 .dialogo-escuro .q-card {
     background-color: #0d1b2a !important;
 }
+
+.language-selector{
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.flag-btn {
+  margin-left: 9%;
+  width: 5vh !important;
+}

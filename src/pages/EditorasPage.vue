@@ -5,7 +5,6 @@
       style="background-color: #274e55; margin-bottom: 2%; border-radius: 2vh"
     >
       <div class="row items-center q-col-gutter-sm">
-        <!-- Título: ocupa a linha toda no mobile, só metade no desktop -->
         <div class="col-12 col-md-6">
           <div class="titulo q-mb-sm flex items-center">
             <q-icon
@@ -14,27 +13,25 @@
               class="q-mr-sm"
               color="primary"
             />
-            Editoras
+            {{ $t('PublishersPage.title') }}
           </div>
         </div>
 
-        <!-- Botão -->
         <div class="col-6 col-md-2">
           <q-btn
             class="CadastroBTN"
-            label="Cadastrar"
+            :label="$t('PublishersPage.register_button')"
             color="primary"
             @click="abrirModalCadastro"
           />
         </div>
 
-        <!-- Input -->
         <div class="col-6 col-md-4">
           <q-input
             class="pesquisaALL"
             standout
             v-model="pesquisa"
-            label="Pesquisar Editoras"
+            :label="$t('PublishersPage.search_placeholder')"
           >
             <template v-slot:append>
               <q-icon name="search" />
@@ -43,6 +40,7 @@
         </div>
       </div>
     </div>
+    
     <q-table
       :rows="editorasFiltradas"
       :columns="columns"
@@ -54,9 +52,10 @@
           <q-th v-for="col in props.cols" :key="col.name" :props="props">
             {{ col.label }}
           </q-th>
-          <q-th>Ações</q-th>
+          <q-th>{{ $t('PublishersPage.actions_header') }}</q-th>
         </q-tr>
       </template>
+
       <template v-slot:body="props">
         <q-tr :props="props">
           <q-td v-for="col in props.cols" :key="col.name" :props="props">
@@ -82,16 +81,16 @@
       </template>
     </q-table>
 
-    <!-- Modal Cadastro -->
     <q-dialog v-model="modalCadastro">
       <q-card class="modal" style="max-height: 80%; width: 100%">
         <q-card-section class="conteudoModal">
-          <div class="tituloModal">Cadastrar Editora</div>
+          <div class="tituloModal">{{ $t('PublishersPage.modal_register_title') }}</div>
+          
           <q-input
             class="inputModal"
             outlined
             v-model="novaEditora.nome"
-            label="Nome da Editora"
+            :label="$t('PublishersPage.input_name_label')"
             :error="errosCadastro.nome"
             error-color="negative"
             @input="validarCampo('nome')"
@@ -101,7 +100,7 @@
             class="inputModal"
             outlined
             v-model="novaEditora.email"
-            label="Email da Editora"
+            :label="$t('PublishersPage.input_email_label')"
             type="email"
             :error="errosCadastro.email"
             error-color="negative"
@@ -112,7 +111,7 @@
             class="inputModal"
             outlined
             v-model="novaEditora.telefone"
-            label="Telefone"
+            :label="$t('PublishersPage.input_phone_label')"
             :error="errosCadastro.telefone"
             error-color="negative"
             @input="validarCampo('telefone')"
@@ -122,7 +121,7 @@
             class="inputModal"
             outlined
             v-model="novaEditora.site"
-            label="Site da Editora"
+            :label="$t('PublishersPage.input_website_label')"
             :error="errosCadastro.site"
             error-color="negative"
             @input="validarCampo('site')"
@@ -132,79 +131,94 @@
         <q-card-actions class="botoesModal">
           <q-btn
             class="modalBTN"
-            label="Cadastrar"
+            :label="$t('PublishersPage.register_button')"
             color="primary"
             @click="cadastrarEditora"
           />
           <q-btn
             class="modalBTN"
-            label="Cancelar"
+            :label="$t('PublishersPage.cancel_button')"
             @click="modalCadastro = false"
           />
         </q-card-actions>
       </q-card>
     </q-dialog>
 
-    <!-- Modal Editar -->
     <q-dialog v-model="modalEditar">
       <q-card class="modal" style="max-height: 80%; width: 100%">
         <q-card-section class="conteudoModal">
-          <div class="tituloModal">Atualizar Editora</div>
+          <div class="tituloModal">{{ $t('PublishersPage.modal_update_title') }}</div>
+          
           <q-input
             class="inputModal"
             v-model="editoraEditar.nome"
-            label="Nome da Editora"
+            :label="$t('PublishersPage.input_name_label')"
+            :error="errosEdicao.nome"
+            :error-message="errosEdicao.nome ? $t('PublishersPage.validation_required') : ''"
+            @input="validarCampo('nome', 'edicao')"
             required
           />
           <q-input
             class="inputModal"
             v-model="editoraEditar.email"
-            label="Email da Editora"
+            :label="$t('PublishersPage.input_email_label')"
             type="email"
+            :error="errosEdicao.email"
+            :error-message="errosEdicao.email ? $t('PublishersPage.validation_required') : ''"
+            @input="validarCampo('email', 'edicao')"
             required
           />
           <q-input
             class="inputModal"
             v-model="editoraEditar.telefone"
-            label="Telefone"
+            :label="$t('PublishersPage.input_phone_label')"
+            :error="errosEdicao.telefone"
+            :error-message="errosEdicao.telefone ? $t('PublishersPage.validation_required') : ''"
+            @input="validarCampo('telefone', 'edicao')"
             required
           />
           <q-input
             class="inputModal"
             v-model="editoraEditar.site"
-            label="Site da Editora"
+            :label="$t('PublishersPage.input_website_label')"
+            :error="errosEdicao.site"
+            :error-message="errosEdicao.site ? $t('PublishersPage.validation_required') : ''"
+            @input="validarCampo('site', 'edicao')"
             required
           />
         </q-card-section>
         <q-card-actions class="botoesModal">
           <q-btn
             class="modalBTN"
-            label="Atualizar"
+            :label="$t('PublishersPage.update_button')"
             color="primary"
             @click="atualizarEditora"
           />
-          <q-btn class="modalBTN" label="Fechar" @click="modalEditar = false" />
+          <q-btn 
+            class="modalBTN" 
+            :label="$t('PublishersPage.close_button')" 
+            @click="modalEditar = false" 
+          />
         </q-card-actions>
       </q-card>
     </q-dialog>
 
-    <!-- Modal Confirmar Excluir -->
     <q-dialog v-model="modalExcluir">
       <q-card class="modalCertificando" style="max-width: 35%; width: 100%">
         <q-card-section class="conteudoModal">
-          <div class="text-h6">Certeza que deseja excluir essa Editora?</div>
-          <div class="q-mt-sm">Após essa ação não haverá retorno.</div>
+          <div class="text-h6">{{ $t('PublishersPage.confirm_delete_q1') }}</div>
+          <div class="q-mt-sm">{{ $t('PublishersPage.confirm_delete_q2') }}</div>
         </q-card-section>
         <q-card-actions class="botoesModal">
           <q-btn
             class="modalBTN"
-            label="Excluir"
+            :label="$t('PublishersPage.delete_button')"
             color="negative"
             @click="excluirEditora"
           />
           <q-btn
             class="modalBTN"
-            label="Voltar"
+            :label="$t('PublishersPage.back_button')"
             @click="modalExcluir = false"
           />
         </q-card-actions>
@@ -214,12 +228,13 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from "vue";
+import { ref, onMounted, computed, watch } from "vue"; // Incluindo 'watch'
 import { useQuasar } from "quasar";
-// Certifique-se de que este caminho está correto no seu projeto
+import { useI18n } from 'vue-i18n'; // <-- Importar i18n
 import EditorasService from "src/services/editorasService"; 
 
 const $q = useQuasar();
+const { t, locale } = useI18n(); // <-- Injetar 't' e 'locale'
 
 // ===================================================
 // 1. ESTADO REATIVO
@@ -241,11 +256,11 @@ const novaEditora = ref({
   site: "",
 });
 
-// **NOVO:** Objeto para Edição e Exclusão (armazena a linha selecionada)
+// Objeto para Edição e Exclusão (armazena a linha selecionada)
 const editoraEditar = ref({});
 const editoraExcluir = ref({});
 
-// **NOVO:** Objeto para ERROS de Cadastro (Controla a cor vermelha)
+// Objeto para ERROS de Cadastro (Controla a cor vermelha)
 const errosCadastro = ref({
   nome: false,
   email: false,
@@ -253,8 +268,7 @@ const errosCadastro = ref({
   site: false,
 });
 
-// **NOVO:** Objeto para ERROS de Edição (Controla a cor vermelha)
-// Importante usar um objeto separado, pois os modais são independentes
+// Objeto para ERROS de Edição (Controla a cor vermelha)
 const errosEdicao = ref({
   nome: false,
   email: false,
@@ -262,27 +276,19 @@ const errosEdicao = ref({
   site: false,
 });
 
-// 2. COLUNAS DA TABELA
-const columns = [
-  { name: "name", label: "Nome", field: "name", align: "left", sortable: true },
-  {
-    name: "email",
-    label: "E-mail",
-    field: "email",
-    align: "left",
-    sortable: true,
-  },
-  {
-    name: "telefone",
-    label: "Telefone",
-    field: "telephone",
-    align: "left",
-    sortable: true,
-  },
-  { name: "site", label: "Site", field: "site", align: "left", sortable: true },
-];
+// ===================================================
+// 2. COLUNAS DA TABELA (AGORA COMPUTADA para reatividade do idioma)
+// ===================================================
+const columns = computed(() => [
+  { name: "name", label: t('PublishersPage.column_name'), field: "name", align: "left", sortable: true },
+  { name: "email", label: t('PublishersPage.column_email'), field: "email", align: "left", sortable: true },
+  { name: "telefone", label: t('PublishersPage.column_phone'), field: "telephone", align: "left", sortable: true },
+  { name: "site", label: t('PublishersPage.column_website'), field: "site", align: "left", sortable: true },
+]);
 
+// ===================================================
 // 3. PROPRIEDADE COMPUTADA (Lógica de Filtragem)
+// ===================================================
 const editorasFiltradas = computed(() => {
   if (!pesquisa.value) {
     return allEditoras.value;
@@ -300,7 +306,7 @@ const editorasFiltradas = computed(() => {
 });
 
 // ===================================================
-// 4. MÉTODOS DE VALIDAÇÃO E AÇÃO
+// 4. MÉTODOS DE VALIDAÇÃO E AÇÃO (Notificações traduzidas)
 // ===================================================
 
 /**
@@ -318,7 +324,6 @@ function validarCampo(campo, tipo = 'cadastro') {
 
 /**
  * Valida se todos os campos do formulário de Cadastro estão preenchidos.
- * Seta o estado de erro para true para os campos vazios.
  */
 function validarFormularioCadastro() {
   let valido = true;
@@ -338,7 +343,6 @@ function validarFormularioCadastro() {
 
 /**
  * Valida se todos os campos do formulário de Edição estão preenchidos.
- * Seta o estado de erro para true para os campos vazios.
  */
 function validarFormularioEdicao() {
   let valido = true;
@@ -362,15 +366,15 @@ async function carregarEditoras() {
   isLoading.value = true;
   try {
     const data = await EditorasService.buscarTodas();
-    allEditoras.value = Array.isArray(data) ? data : [data];
+    // A API retornou os dados? Se for um objeto, coloca em um array. Se for array, usa o array.
+    allEditoras.value = Array.isArray(data) ? data : [data].filter(d => d);
   } catch (error) {
     console.error("Falha ao carregar editoras:", error);
     $q.notify({
       type: "negative",
-      message: "Erro ao carregar editoras.",
-      caption:
-        error.response?.data?.message ||
-        "Verifique sua conexão ou token de acesso.",
+      // Usa $t() para a mensagem de erro padrão
+      message: t('PublishersPage.error_load_default'),
+      caption: error.response?.data?.message || t('PublishersPage.error_connection'),
     });
   } finally {
     isLoading.value = false;
@@ -379,22 +383,21 @@ async function carregarEditoras() {
 
 /** Prepara e abre o modal de cadastro */
 function abrirModalCadastro() {
-  // Limpa o formulário
+  // Limpa o formulário e erros
   novaEditora.value = { nome: "", email: "", telefone: "", site: "" };
-  // **NOVO:** Limpa os erros de validação
   errosCadastro.value = { nome: false, email: false, telefone: false, site: false };
   modalCadastro.value = true;
 }
 
 /** Envia os dados da nova editora para a API */
 async function cadastrarEditora() {
-  // **NOVO:** Executa a validação antes de enviar
   if (!validarFormularioCadastro()) {
+    // Usa $t()
     $q.notify({
       type: "negative",
-      message: "Preencha todos os campos obrigatórios.",
+      message: t('PublishersPage.validation_fill_all'),
     });
-    return; // Para a execução
+    return;
   }
 
   try {
@@ -407,12 +410,17 @@ async function cadastrarEditora() {
 
     await EditorasService.criar(dataToSend);
 
-    $q.notify({ type: "positive", message: "Editora cadastrada com sucesso!" });
+    // Usa $t()
+    $q.notify({ type: "positive", message: t('PublishersPage.success_register') });
     modalCadastro.value = false;
-    carregarEditoras(); // Recarrega a lista
+    carregarEditoras();
   } catch (error) {
     console.error("Erro no cadastro:", error);
-    $q.notify({ type: "negative", message: "Falha ao cadastrar editora." });
+    // Usa $t()
+    $q.notify({ 
+        type: "negative", 
+        message: error.response?.data?.message || t('PublishersPage.error_register_default') 
+    });
   }
 }
 
@@ -426,20 +434,20 @@ function editarEditora(editora) {
     telefone: editora.telephone,
     site: editora.site,
   };
-  // **NOVO:** Limpa os erros de validação
+  // Limpa os erros de validação de edição
   errosEdicao.value = { nome: false, email: false, telefone: false, site: false };
   modalEditar.value = true;
 }
 
 /** Envia a atualização para a API */
 async function atualizarEditora() {
-  // **NOVO:** Executa a validação antes de enviar
   if (!validarFormularioEdicao()) {
+    // Usa $t()
     $q.notify({
       type: "negative",
-      message: "Preencha todos os campos obrigatórios.",
+      message: t('PublishersPage.validation_fill_all'),
     });
-    return; // Para a execução
+    return;
   }
 
   try {
@@ -452,12 +460,17 @@ async function atualizarEditora() {
 
     await EditorasService.atualizar(editoraEditar.value.id, dataToSend);
 
-    $q.notify({ type: "positive", message: "Editora atualizada com sucesso!" });
+    // Usa $t()
+    $q.notify({ type: "positive", message: t('PublishersPage.success_update') });
     modalEditar.value = false;
-    carregarEditoras(); // Recarrega a lista
+    carregarEditoras();
   } catch (error) {
     console.error("Erro na atualização:", error);
-    $q.notify({ type: "negative", message: "Falha ao atualizar editora." });
+    // Usa $t()
+    $q.notify({ 
+        type: "negative", 
+        message: error.response?.data?.message || t('PublishersPage.error_update_default') 
+    });
   }
 }
 
@@ -472,17 +485,40 @@ async function excluirEditora() {
   try {
     await EditorasService.deletar(editoraExcluir.value.id);
 
-    $q.notify({ type: "positive", message: "Editora excluída com sucesso!" });
+    // Usa $t()
+    $q.notify({ type: "positive", message: t('PublishersPage.success_delete') });
     modalExcluir.value = false;
-    carregarEditoras(); // Recarrega a lista
+    carregarEditoras();
   } catch (error) {
     console.error("Erro na exclusão:", error);
-    $q.notify({ type: "negative", message: "Falha ao excluir editora." });
+    let errorMessage = t('PublishersPage.error_delete_default');
+    
+    if (error.response?.status === 400) {
+        // Mensagem mais específica se estiver ligada a livros, por exemplo.
+        errorMessage = t('PublishersPage.error_delete_linked');
+    } else if (error.response?.data?.message) {
+        errorMessage = error.response.data.message;
+    }
+
+    $q.notify({ 
+        type: "negative", 
+        message: errorMessage,
+        timeout: 7000 
+    });
   }
 }
 
-// 5. CICLO DE VIDA
+// 5. CICLO DE VIDA E WATCHER
 onMounted(() => {
   carregarEditoras();
+});
+
+// Adiciona o watcher para reatividade do idioma na tela
+watch(locale, () => {
+    $q.notify({ 
+      type: 'info', 
+      message: t('general.language_updated'), // Assume que você tem uma chave 'general.language_updated'
+      timeout: 1000 
+    });
 });
 </script>
