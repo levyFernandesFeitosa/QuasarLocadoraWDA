@@ -4,29 +4,33 @@
       class="q-pa-md example-row-column-width"
       style="background-color: #274e55; margin-bottom: 2%; border-radius: 2vh"
     >
-      <div class="row items-center q-col-gutter-sm">
-        <div class="col-12 col-md-6">
-          <div class="titulo q-mb-sm flex items-center">
+      <div class="row items-center q-col-gutter-sm flex-md-row flex-column">
+        <div class="col-grow col-md-6 order-xs-2 order-md-1">
+          <div class="titulo flex items-center">
             <q-icon
               name="library_books"
               size="32px"
               class="q-mr-sm"
               color="primary"
             />
-            {{ $t('PublishersPage.title') }}
+            <span class="text-white text-weight-bold ellipsis">{{
+              $t("PublishersPage.title")
+            }}</span>
           </div>
         </div>
 
-        <div class="col-6 col-md-2">
+        <div
+          class="col-auto col-md-2 order-xs-3 order-md-2 q-ml-auto q-ml-md-none"
+        >
           <q-btn
-            class="CadastroBTN"
+            class="CadastroBTN full-width"
             :label="$t('PublishersPage.register_button')"
             color="primary"
             @click="abrirModalCadastro"
           />
         </div>
 
-        <div class="col-6 col-md-4">
+        <div class="col-12 col-md-4 order-xs-1 order-md-3">
           <q-input
             class="pesquisaALL"
             standout
@@ -40,23 +44,33 @@
         </div>
       </div>
     </div>
-    
     <q-table
       :rows="editorasFiltradas"
       :columns="columns"
       row-key="id"
-      :rows-per-page-options="[5]"
+      :grid="$q.screen.lt.md"
+      :hide-header="$q.screen.lt.md"
+      :rows-per-page-options="[5, 10, 20, 0]"
+      :pagination="{
+        page: 1,
+        // Em telas pequenas (lt.md), rowsPerPage=0 exibe todos os itens, confiando no scroll da página
+        rowsPerPage: $q.screen.lt.md ? 0 : 5,
+      }"
+      :hide-pagination="$q.screen.lt.md"
+      flat
+      bordered
+      :loading="isLoading"
     >
-      <template v-slot:header="props">
+      <template v-slot:header="props" v-if="!$q.screen.lt.md">
         <q-tr :props="props" class="linha-destacada">
           <q-th v-for="col in props.cols" :key="col.name" :props="props">
             {{ col.label }}
           </q-th>
-          <q-th>{{ $t('PublishersPage.actions_header') }}</q-th>
+          <q-th>{{ $t("PublishersPage.actions_header") }}</q-th>
         </q-tr>
       </template>
 
-      <template v-slot:body="props">
+      <template v-slot:body="props" v-if="!$q.screen.lt.md">
         <q-tr :props="props">
           <q-td v-for="col in props.cols" :key="col.name" :props="props">
             {{ col.value }}
@@ -79,13 +93,54 @@
           </q-td>
         </q-tr>
       </template>
-    </q-table>
 
+      <template v-slot:item="props">
+        <div class="q-pa-xs col-xs-12 col-sm-6">
+          <q-card class="q-mb-md card-mobile" style="background-color: #f5f5f5">
+            <q-card-section>
+              <div
+                v-for="col in props.cols"
+                :key="col.name"
+                class="row q-mb-xs"
+              >
+                <div class="col-5 text-weight-bold text-grey-7">
+                  {{ col.label }}:
+                </div>
+                <div class="col-7 text-black">
+                  {{ col.value }}
+                </div>
+              </div>
+            </q-card-section>
+
+            <q-separator />
+
+            <q-card-actions align="right">
+              <q-btn
+                dense
+                flat
+                icon="edit"
+                color="primary"
+                @click="editarEditora(props.row)"
+              />
+              <q-btn
+                dense
+                flat
+                icon="delete"
+                color="negative"
+                @click="confirmarExcluir(props.row)"
+              />
+            </q-card-actions>
+          </q-card>
+        </div>
+      </template>
+    </q-table>
     <q-dialog v-model="modalCadastro">
       <q-card class="modal" style="max-height: 80%; width: 100%">
         <q-card-section class="conteudoModal">
-          <div class="tituloModal">{{ $t('PublishersPage.modal_register_title') }}</div>
-          
+          <div class="tituloModal">
+            {{ $t("PublishersPage.modal_register_title") }}
+          </div>
+
           <q-input
             class="inputModal"
             outlined
@@ -147,14 +202,18 @@
     <q-dialog v-model="modalEditar">
       <q-card class="modal" style="max-height: 80%; width: 100%">
         <q-card-section class="conteudoModal">
-          <div class="tituloModal">{{ $t('PublishersPage.modal_update_title') }}</div>
-          
+          <div class="tituloModal">
+            {{ $t("PublishersPage.modal_update_title") }}
+          </div>
+
           <q-input
             class="inputModal"
             v-model="editoraEditar.nome"
             :label="$t('PublishersPage.input_name_label')"
             :error="errosEdicao.nome"
-            :error-message="errosEdicao.nome ? $t('PublishersPage.validation_required') : ''"
+            :error-message="
+              errosEdicao.nome ? $t('PublishersPage.validation_required') : ''
+            "
             @input="validarCampo('nome', 'edicao')"
             required
           />
@@ -164,7 +223,9 @@
             :label="$t('PublishersPage.input_email_label')"
             type="email"
             :error="errosEdicao.email"
-            :error-message="errosEdicao.email ? $t('PublishersPage.validation_required') : ''"
+            :error-message="
+              errosEdicao.email ? $t('PublishersPage.validation_required') : ''
+            "
             @input="validarCampo('email', 'edicao')"
             required
           />
@@ -173,7 +234,11 @@
             v-model="editoraEditar.telefone"
             :label="$t('PublishersPage.input_phone_label')"
             :error="errosEdicao.telefone"
-            :error-message="errosEdicao.telefone ? $t('PublishersPage.validation_required') : ''"
+            :error-message="
+              errosEdicao.telefone
+                ? $t('PublishersPage.validation_required')
+                : ''
+            "
             @input="validarCampo('telefone', 'edicao')"
             required
           />
@@ -182,7 +247,9 @@
             v-model="editoraEditar.site"
             :label="$t('PublishersPage.input_website_label')"
             :error="errosEdicao.site"
-            :error-message="errosEdicao.site ? $t('PublishersPage.validation_required') : ''"
+            :error-message="
+              errosEdicao.site ? $t('PublishersPage.validation_required') : ''
+            "
             @input="validarCampo('site', 'edicao')"
             required
           />
@@ -194,10 +261,10 @@
             color="primary"
             @click="atualizarEditora"
           />
-          <q-btn 
-            class="modalBTN" 
-            :label="$t('PublishersPage.close_button')" 
-            @click="modalEditar = false" 
+          <q-btn
+            class="modalBTN"
+            :label="$t('PublishersPage.close_button')"
+            @click="modalEditar = false"
           />
         </q-card-actions>
       </q-card>
@@ -206,8 +273,12 @@
     <q-dialog v-model="modalExcluir">
       <q-card class="modalCertificando" style="max-width: 35%; width: 100%">
         <q-card-section class="conteudoModal">
-          <div class="text-h6">{{ $t('PublishersPage.confirm_delete_q1') }}</div>
-          <div class="q-mt-sm">{{ $t('PublishersPage.confirm_delete_q2') }}</div>
+          <div class="text-h6">
+            {{ $t("PublishersPage.confirm_delete_q1") }}
+          </div>
+          <div class="q-mt-sm">
+            {{ $t("PublishersPage.confirm_delete_q2") }}
+          </div>
         </q-card-section>
         <q-card-actions class="botoesModal">
           <q-btn
@@ -228,13 +299,13 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed, watch } from "vue"; // Incluindo 'watch'
+import { ref, onMounted, computed, watch } from "vue";
 import { useQuasar } from "quasar";
-import { useI18n } from 'vue-i18n'; // <-- Importar i18n
-import EditorasService from "src/services/editorasService"; 
+import { useI18n } from "vue-i18n";
+import EditorasService from "src/services/editorasService";
 
 const $q = useQuasar();
-const { t, locale } = useI18n(); // <-- Injetar 't' e 'locale'
+const { t, locale } = useI18n();
 
 // ===================================================
 // 1. ESTADO REATIVO
@@ -277,13 +348,37 @@ const errosEdicao = ref({
 });
 
 // ===================================================
-// 2. COLUNAS DA TABELA (AGORA COMPUTADA para reatividade do idioma)
+// 2. COLUNAS DA TABELA (COMPUTADA para reatividade do idioma)
 // ===================================================
 const columns = computed(() => [
-  { name: "name", label: t('PublishersPage.column_name'), field: "name", align: "left", sortable: true },
-  { name: "email", label: t('PublishersPage.column_email'), field: "email", align: "left", sortable: true },
-  { name: "telefone", label: t('PublishersPage.column_phone'), field: "telephone", align: "left", sortable: true },
-  { name: "site", label: t('PublishersPage.column_website'), field: "site", align: "left", sortable: true },
+  {
+    name: "name",
+    label: t("PublishersPage.column_name"),
+    field: "name",
+    align: "left",
+    sortable: true,
+  },
+  {
+    name: "email",
+    label: t("PublishersPage.column_email"),
+    field: "email",
+    align: "left",
+    sortable: true,
+  },
+  {
+    name: "telephone",
+    label: t("PublishersPage.column_phone"),
+    field: "telephone",
+    align: "left",
+    sortable: true,
+  },
+  {
+    name: "site",
+    label: t("PublishersPage.column_website"),
+    field: "site",
+    align: "left",
+    sortable: true,
+  },
 ]);
 
 // ===================================================
@@ -314,8 +409,8 @@ const editorasFiltradas = computed(() => {
  * @param {string} campo - O nome do campo (ex: 'nome', 'email').
  * @param {string} tipo - 'cadastro' ou 'edicao' para saber qual objeto de erro usar.
  */
-function validarCampo(campo, tipo = 'cadastro') {
-  if (tipo === 'cadastro') {
+function validarCampo(campo, tipo = "cadastro") {
+  if (tipo === "cadastro") {
     errosCadastro.value[campo] = false;
   } else {
     errosEdicao.value[campo] = false;
@@ -327,9 +422,9 @@ function validarCampo(campo, tipo = 'cadastro') {
  */
 function validarFormularioCadastro() {
   let valido = true;
-  const campos = ['nome', 'email', 'telefone', 'site'];
+  const campos = ["nome", "email", "telefone", "site"];
 
-  campos.forEach(campo => {
+  campos.forEach((campo) => {
     if (!novaEditora.value[campo] || novaEditora.value[campo].trim() === "") {
       errosCadastro.value[campo] = true;
       valido = false;
@@ -346,10 +441,13 @@ function validarFormularioCadastro() {
  */
 function validarFormularioEdicao() {
   let valido = true;
-  const campos = ['nome', 'email', 'telefone', 'site'];
+  const campos = ["nome", "email", "telefone", "site"];
 
-  campos.forEach(campo => {
-    if (!editoraEditar.value[campo] || editoraEditar.value[campo].trim() === "") {
+  campos.forEach((campo) => {
+    if (
+      !editoraEditar.value[campo] ||
+      editoraEditar.value[campo].trim() === ""
+    ) {
       errosEdicao.value[campo] = true;
       valido = false;
     } else {
@@ -360,21 +458,20 @@ function validarFormularioEdicao() {
   return valido;
 }
 
-
 /** Busca todas as editoras na API */
 async function carregarEditoras() {
   isLoading.value = true;
   try {
     const data = await EditorasService.buscarTodas();
-    // A API retornou os dados? Se for um objeto, coloca em um array. Se for array, usa o array.
-    allEditoras.value = Array.isArray(data) ? data : [data].filter(d => d);
+    // Garante que 'allEditoras' seja um array
+    allEditoras.value = Array.isArray(data) ? data : data ? [data] : [];
   } catch (error) {
     console.error("Falha ao carregar editoras:", error);
     $q.notify({
       type: "negative",
-      // Usa $t() para a mensagem de erro padrão
-      message: t('PublishersPage.error_load_default'),
-      caption: error.response?.data?.message || t('PublishersPage.error_connection'),
+      message: t("PublishersPage.error_load_default"),
+      caption:
+        error.response?.data?.message || t("PublishersPage.error_connection"),
     });
   } finally {
     isLoading.value = false;
@@ -385,17 +482,21 @@ async function carregarEditoras() {
 function abrirModalCadastro() {
   // Limpa o formulário e erros
   novaEditora.value = { nome: "", email: "", telefone: "", site: "" };
-  errosCadastro.value = { nome: false, email: false, telefone: false, site: false };
+  errosCadastro.value = {
+    nome: false,
+    email: false,
+    telefone: false,
+    site: false,
+  };
   modalCadastro.value = true;
 }
 
 /** Envia os dados da nova editora para a API */
 async function cadastrarEditora() {
   if (!validarFormularioCadastro()) {
-    // Usa $t()
     $q.notify({
       type: "negative",
-      message: t('PublishersPage.validation_fill_all'),
+      message: t("PublishersPage.validation_fill_all"),
     });
     return;
   }
@@ -410,23 +511,26 @@ async function cadastrarEditora() {
 
     await EditorasService.criar(dataToSend);
 
-    // Usa $t()
-    $q.notify({ type: "positive", message: t('PublishersPage.success_register') });
+    $q.notify({
+      type: "positive",
+      message: t("PublishersPage.success_register"),
+    });
     modalCadastro.value = false;
     carregarEditoras();
   } catch (error) {
     console.error("Erro no cadastro:", error);
-    // Usa $t()
-    $q.notify({ 
-        type: "negative", 
-        message: error.response?.data?.message || t('PublishersPage.error_register_default') 
+    $q.notify({
+      type: "negative",
+      message:
+        error.response?.data?.message ||
+        t("PublishersPage.error_register_default"),
     });
   }
 }
 
 /** Prepara a linha para edição */
 function editarEditora(editora) {
-  // Cria uma cópia profunda dos dados da linha
+  // Cria uma cópia dos dados da linha
   editoraEditar.value = {
     id: editora.id,
     nome: editora.name,
@@ -435,17 +539,21 @@ function editarEditora(editora) {
     site: editora.site,
   };
   // Limpa os erros de validação de edição
-  errosEdicao.value = { nome: false, email: false, telefone: false, site: false };
+  errosEdicao.value = {
+    nome: false,
+    email: false,
+    telefone: false,
+    site: false,
+  };
   modalEditar.value = true;
 }
 
 /** Envia a atualização para a API */
 async function atualizarEditora() {
   if (!validarFormularioEdicao()) {
-    // Usa $t()
     $q.notify({
       type: "negative",
-      message: t('PublishersPage.validation_fill_all'),
+      message: t("PublishersPage.validation_fill_all"),
     });
     return;
   }
@@ -460,16 +568,19 @@ async function atualizarEditora() {
 
     await EditorasService.atualizar(editoraEditar.value.id, dataToSend);
 
-    // Usa $t()
-    $q.notify({ type: "positive", message: t('PublishersPage.success_update') });
+    $q.notify({
+      type: "positive",
+      message: t("PublishersPage.success_update"),
+    });
     modalEditar.value = false;
     carregarEditoras();
   } catch (error) {
     console.error("Erro na atualização:", error);
-    // Usa $t()
-    $q.notify({ 
-        type: "negative", 
-        message: error.response?.data?.message || t('PublishersPage.error_update_default') 
+    $q.notify({
+      type: "negative",
+      message:
+        error.response?.data?.message ||
+        t("PublishersPage.error_update_default"),
     });
   }
 }
@@ -485,25 +596,27 @@ async function excluirEditora() {
   try {
     await EditorasService.deletar(editoraExcluir.value.id);
 
-    // Usa $t()
-    $q.notify({ type: "positive", message: t('PublishersPage.success_delete') });
+    $q.notify({
+      type: "positive",
+      message: t("PublishersPage.success_delete"),
+    });
     modalExcluir.value = false;
     carregarEditoras();
   } catch (error) {
     console.error("Erro na exclusão:", error);
-    let errorMessage = t('PublishersPage.error_delete_default');
-    
+    let errorMessage = t("PublishersPage.error_delete_default");
+
     if (error.response?.status === 400) {
-        // Mensagem mais específica se estiver ligada a livros, por exemplo.
-        errorMessage = t('PublishersPage.error_delete_linked');
+      // Mensagem mais específica se estiver ligada a livros, por exemplo.
+      errorMessage = t("PublishersPage.error_delete_linked");
     } else if (error.response?.data?.message) {
-        errorMessage = error.response.data.message;
+      errorMessage = error.response.data.message;
     }
 
-    $q.notify({ 
-        type: "negative", 
-        message: errorMessage,
-        timeout: 7000 
+    $q.notify({
+      type: "negative",
+      message: errorMessage,
+      timeout: 7000,
     });
   }
 }
@@ -515,10 +628,11 @@ onMounted(() => {
 
 // Adiciona o watcher para reatividade do idioma na tela
 watch(locale, () => {
-    $q.notify({ 
-      type: 'info', 
-      message: t('general.language_updated'), // Assume que você tem uma chave 'general.language_updated'
-      timeout: 1000 
-    });
+  // Apenas dispara a notificação para mostrar que a reatividade do i18n está funcionando
+  $q.notify({
+    type: "info",
+    message: t("general.language_updated") || "Idioma atualizado",
+    timeout: 1000,
+  });
 });
 </script>

@@ -36,17 +36,25 @@
         <q-table
           :rows="rows"
           :columns="columns"
-          row-key="name"
-          :rows-per-page-options="[0]"
-          :pagination="{
-            page: 1,
-            rowsPerPage:
-              $q.screen.sm ? 0 : 
-              $q.screen.md ? 2 : 
-              $q.screen.lg ? 7 : 
-              7
+          row-key="nome"
+          class="minha-tabela-moderna"
+
+          :grid="$q.screen.lt.md"
+          
+          :hide-header="$q.screen.lt.md"
+          
+          :pagination="$q.screen.lt.md ? { rowsPerPage: 0 } : {
+              page: 1,
+              rowsPerPage: 
+                $q.screen.md ? 2 : 
+                $q.screen.lg ? 7 : 
+                7
           }"
+          :rows-per-page-options="[0]"
+          
+          :hide-pagination="$q.screen.lt.md"
         >
+          
           <template v-slot:header="props">
             <q-tr :props="props" class="linha-destacada">
               <q-th v-for="col in props.cols" :key="col.name" :props="props">
@@ -58,26 +66,70 @@
           <template v-slot:body="props">
             <q-tr :props="props">
               <q-td v-for="col in props.cols" :key="col.name" :props="props">
-                {{ col.value }}
+                <div v-if="col.name === 'actions'">
+                    <q-btn
+                        color="primary"
+                        icon="edit"
+                        flat
+                        dense
+                        size="sm"
+                        @click="editRenter(props.row.id)"
+                    />
+                    <q-btn
+                        color="negative"
+                        icon="delete"
+                        flat
+                        dense
+                        size="sm"
+                        class="q-ml-sm"
+                        @click="deleteRenter(props.row.id)"
+                    />
+                </div>
+                <div v-else>
+                    {{ col.value }}
+                </div>
               </q-td>
             </q-tr>
           </template>
-        </q-table>
+          
+          <template v-slot:item="props">
+            <div
+              class="q-pa-xs col-xs-12 col-sm-6" 
+            >
+              <q-card flat bordered class="q-ma-sm">
+                <q-card-section>
+                  <div
+                    v-for="col in props.cols.filter(c => c.name !== 'actions')"
+                    :key="col.name"
+                    class="row q-mb-sm"
+                  >
+                    <div class="col-6 text-weight-bold text-grey-7">
+                      {{ col.label }}:
+                    </div>
+                    <div class="col-6 text-right text-black">
+                      {{ col.value }}
+                    </div>
+                  </div>
+                  
+                </q-card-section>
+              </q-card>
+            </div>
+          </template>
+          </q-table>
       </div>
     </div>
   </q-page>
 </template>
 
-
 <script setup>
 import { ref, onMounted, computed, watch, nextTick } from 'vue';
 import { useQuasar } from 'quasar';
-import { useI18n } from 'vue-i18n'; // <-- Importado para tradução
+import { useI18n } from 'vue-i18n'; 
 import { dashboardService } from 'src/services/dashboardService';
 import Chart from 'chart.js/auto';
 
 const $q = useQuasar();
-const { t, locale } = useI18n(); // <-- Injetado 't' para traduzir e 'locale' para reatividade
+const { t, locale } = useI18n(); 
 
 // --- Estado Bruto da API ---
 const loading = ref(true);
@@ -88,19 +140,40 @@ const entreguesNoPrazo = ref(0);
 const entreguesAtraso = ref(0);
 const alugueisAtrasados = ref(0);
 
-// --- Métricas Computadas (Cards) ---
+// --- Métricas Computadas (Cards de Totais) ---
 const totalAlugueis = computed(() => Array.isArray(alugueis.value) ? alugueis.value.length : 0);
 const totalLocatarios = computed(() => Array.isArray(locatarios.value) ? locatarios.value.length : 0);
 
-// --- Colunas da Tabela (AGORA COMPUTADA para reatividade do idioma) ---
+// --- Colunas da Tabela (COMPUTADA) ---
 const columns = computed(() => [
-  { name: 'nome', label: t('DashboardPage.Renter'), field: 'nome', align: 'left', sortable: true },
-  { name: 'totalAlugueis', label: t('DashboardPage.Total_Loans'), field: 'totalAlugueis', align: 'center', sortable: true },
-  { name: 'livrosDevolvidos', label: t('DashboardPage.Rentals_Returned'), field: 'livrosDevolvidos', align: 'center', sortable: true },
+  { 
+    name: 'nome', 
+    label: t('DashboardPage.Renter'), 
+    field: 'nome', 
+    align: 'left', 
+    sortable: true,
+    // Opcional: Oculta a coluna "nome" na tabela normal para telas pequenas, se o espaço for apertado
+    classes: $q.screen.lt.md ? 'hidden' : '', 
+    headerClasses: $q.screen.lt.md ? 'hidden' : '',
+  },
+  { 
+    name: 'totalAlugueis', 
+    label: t('DashboardPage.Total_Loans'), 
+    field: 'totalAlugueis', 
+    align: 'center', 
+    sortable: true 
+  },
+  { 
+    name: 'livrosDevolvidos', 
+    label: t('DashboardPage.Rentals_Returned'), 
+    field: 'livrosDevolvidos', 
+    align: 'center', 
+    sortable: true 
+  },
 ]);
 
 /**
- * Lógica de Processamento de Tabela
+ * Lógica de Processamento de Tabela (Rows)
  */
 const rows = computed(() => {
   const allAlugueis = alugueis.value;
@@ -116,12 +189,14 @@ const rows = computed(() => {
     ).length;
 
     return {
-      nome: loc.name, // Nome do locatário
+      id: loc.id, // ID é crucial para as ações
+      nome: loc.name,
       totalAlugueis,
-      livrosDevolvidos,
+      livrosDevolvidos
     };
   });
 });
+
 
 // --- Lógica de Renderização de Gráficos (Chart.js) ---
 let chartLivros = null;
@@ -143,7 +218,7 @@ function renderCharts() {
       data: {
         labels: livrosLabels,
         datasets: [{
-          label: t('DashboardPage.Most_Rented_Books'), // <-- Traduzindo o Label
+          label: t('DashboardPage.Most_Rented_Books'), 
           data: livrosData,
           backgroundColor: 'rgba(75, 192, 192, 1)',
           borderColor: 'rgba(75, 192, 192, 1)',
@@ -160,14 +235,13 @@ function renderCharts() {
     chartPizza = new Chart(ctxPizza.getContext('2d'), {
       type: 'pie',
       data: {
-        // Rótulos traduzidos com a função 't'
         labels: [
           t('DashboardPage.Returned'),
           t('DashboardPage.Pending'), 
           t('DashboardPage.Rentals')
         ],
         datasets: [{
-          label: t('DashboardPage.Rental_Distribution'), // <-- Traduzindo o Label
+          label: t('DashboardPage.Rental_Distribution'), 
           data: [
             entreguesNoPrazo.value,
             entreguesAtraso.value,
@@ -204,17 +278,14 @@ async function loadData() {
   try {
     const data = await dashboardService.loadDashboardData(1);
 
-    // Mapeia os dados brutos para as variáveis reativas
     locatarios.value = data.locatarios;
     alugueis.value = data.alugueis;
     livrosMaisAlugados.value = data.livrosMaisAlugados;
     
-    // Contadores diretos da API
     entreguesNoPrazo.value = data.entreguesNoPrazo;
     entreguesAtraso.value = data.entreguesAtraso;
     alugueisAtrasados.value = data.alugueisAtrasados;
     
-    // Renderiza gráficos após carregar os dados
     await nextTick();
     renderCharts();
 
@@ -222,7 +293,7 @@ async function loadData() {
     console.error('Erro no loadData:', error);
     $q.notify({
       type: 'negative',
-      message: t('general.data_load_error'), // Use uma chave geral para notificação de erro, se existir
+      message: t('general.data_load_error') || 'Erro ao carregar dados', 
       caption: error.response?.data?.message || 'Verifique sua conexão ou a API.',
     });
   } finally {
@@ -234,15 +305,13 @@ onMounted(() => {
   loadData();
 });
 
-// 1. Observa a largura da tela para responsividade do Quasar
+// 1. Observa a largura da tela para responsividade (re-renderiza gráficos)
 watch(() => $q.screen.width, () => {
     setTimeout(renderCharts, 100); 
 });
 
-// 2. Observa a mudança de idioma (locale) para re-renderizar os gráficos
-// Os 'columns' já são reativos por serem 'computed'
+// 2. Observa a mudança de idioma (locale) para re-renderizar os gráficos e colunas
 watch(locale, () => {
-    // É importante recriar os gráficos pois o Chart.js não atualiza os rótulos automaticamente
     setTimeout(renderCharts, 100); 
 });
 

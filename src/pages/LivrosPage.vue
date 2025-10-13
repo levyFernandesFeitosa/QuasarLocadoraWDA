@@ -4,29 +4,33 @@
       class="q-pa-md example-row-column-width"
       style="background-color: #274e55; margin-bottom: 2%; border-radius: 2vh"
     >
-      <div class="row items-center q-col-gutter-sm">
-        <div class="col-12 col-md-6">
-          <div class="titulo q-mb-sm flex items-center">
+      <div class="row items-center q-col-gutter-sm flex-md-row flex-column">
+        <div class="col-grow col-md-6 order-xs-2 order-md-1">
+          <div class="titulo flex items-center">
             <q-icon
               name="menu_book"
               size="32px"
               class="q-mr-sm"
               color="primary"
             />
-            {{ $t('BooksPage.title') }}
+            <span class="text-white text-weight-bold ellipsis">{{
+              $t("BooksPage.title")
+            }}</span>
           </div>
         </div>
 
-        <div class="col-6 col-md-2">
+        <div
+          class="col-auto col-md-2 order-xs-3 order-md-2 q-ml-auto q-ml-md-none"
+        >
           <q-btn
-            class="CadastroBTN"
+            class="CadastroBTN full-width"
             :label="$t('BooksPage.register_button')"
             color="primary"
             @click="abrirModalCadastro"
           />
         </div>
 
-        <div class="col-6 col-md-4">
+        <div class="col-12 col-md-4 order-xs-1 order-md-3">
           <q-input
             class="pesquisaALL"
             standout
@@ -42,28 +46,39 @@
         </div>
       </div>
     </div>
-
     <q-table
       :rows="livros"
       :columns="columns"
       row-key="id"
-      :rows-per-page-options="[5, 10, 20]"
+      :grid="$q.screen.lt.md"
+      :hide-header="$q.screen.lt.md"
+      :rows-per-page-options="[5, 10, 20, 0]"
+      :pagination="{
+        page: 1,
+        // Em telas pequenas (lt.md), rowsPerPage=0 exibe todos os itens, confiando no scroll da página
+        rowsPerPage: $q.screen.lt.md ? 0 : 5,
+      }"
+      :hide-pagination="$q.screen.lt.md"
       :loading="carregando"
       :filter="termoPesquisa"
     >
-      <template v-slot:header="props">
+      <template v-slot:header="props" v-if="!$q.screen.lt.md">
         <q-tr :props="props" class="linha-destacada">
           <q-th v-for="col in props.cols" :key="col.name" :props="props">
             {{ col.label }}
           </q-th>
-          <q-th>{{ $t('BooksPage.actions_header') }}</q-th>
+          <q-th>{{ $t("BooksPage.actions_header") }}</q-th>
         </q-tr>
       </template>
-      <template v-slot:body="props">
+
+      <template v-slot:body="props" v-if="!$q.screen.lt.md">
         <q-tr :props="props">
           <q-td v-for="col in props.cols" :key="col.name" :props="props">
             <span v-if="col.name === 'publisher'">{{
-              props.row.publisher?.name || $t('BooksPage.not_applicable')
+              props.row.publisher?.name || $t("BooksPage.not_applicable")
+            }}</span>
+            <span v-else-if="col.name === 'launchDate'">{{
+              col.format(col.value)
             }}</span>
             <span v-else>{{ col.value }}</span>
           </q-td>
@@ -86,17 +101,74 @@
         </q-tr>
       </template>
 
+      <template v-slot:item="props">
+        <div class="q-pa-xs col-xs-12 col-sm-6">
+          <q-card class="q-mb-md card-mobile" style="background-color: #f5f5f5">
+            <q-card-section>
+              <div
+                v-for="col in props.cols"
+                :key="col.name"
+                class="row q-mb-xs"
+              >
+                <div class="col-5 text-weight-bold text-grey-7">
+                  {{ col.label }}:
+                </div>
+                <div class="col-7 text-black">
+                  <span v-if="col.name === 'publisher'">
+                    {{
+                      props.row.publisher?.name ||
+                      $t("BooksPage.not_applicable")
+                    }}
+                  </span>
+                  <span v-else-if="col.name === 'launchDate'">
+                    {{ col.format(col.value) }}
+                  </span>
+                  <span v-else>
+                    {{ col.value }}
+                  </span>
+                </div>
+              </div>
+            </q-card-section>
+
+            <q-separator />
+
+            <q-card-actions align="right">
+              <q-btn
+                dense
+                flat
+                icon="edit"
+                color="primary"
+                @click="abrirModalEdicao(props.row)"
+              />
+              <q-btn
+                dense
+                flat
+                icon="delete"
+                color="negative"
+                @click="confirmarExclusao(props.row.id)"
+              />
+            </q-card-actions>
+          </q-card>
+        </div>
+      </template>
       <template v-slot:loading>
-        <q-inner-loading showing color="primary" :label="$t('BooksPage.loading_books')" />
+        <q-inner-loading
+          showing
+          color="primary"
+          :label="$t('BooksPage.loading_books')"
+        />
       </template>
     </q-table>
-
     <q-dialog v-model="modalAberto">
       <q-card class="modal">
         <q-form @submit.prevent="salvarLivro" style="width: 100%; height: 90%">
           <q-card-section class="conteudoModal">
             <div class="tituloModal">
-              {{ editando ? $t('BooksPage.modal_update_title') : $t('BooksPage.modal_register_title') }}
+              {{
+                editando
+                  ? $t("BooksPage.modal_update_title")
+                  : $t("BooksPage.modal_register_title")
+              }}
             </div>
 
             <q-input
@@ -158,15 +230,19 @@
           <q-card-actions class="botoesModal">
             <q-btn
               class="modalBTN"
-              :label="editando ? $t('BooksPage.update_button') : $t('BooksPage.register_button')"
+              :label="
+                editando
+                  ? $t('BooksPage.update_button')
+                  : $t('BooksPage.register_button')
+              "
               color="primary"
               type="submit"
               :loading="salvando"
             />
-            <q-btn 
-                class="modalBTN" 
-                :label="$t('BooksPage.cancel_button')" 
-                @click="fecharModal" 
+            <q-btn
+              class="modalBTN"
+              :label="$t('BooksPage.cancel_button')"
+              @click="fecharModal"
             />
           </q-card-actions>
         </q-form>
@@ -176,8 +252,8 @@
     <q-dialog v-model="modalExcluir">
       <q-card class="modalCertificando" style="max-width: 35%; width: 100%">
         <q-card-section class="conteudoModal">
-          <div class="text-h6">{{ $t('BooksPage.confirm_delete_q1') }}</div>
-          <div class="text-h6">{{ $t('BooksPage.confirm_delete_q2') }}</div>
+          <div class="text-h6">{{ $t("BooksPage.confirm_delete_q1") }}</div>
+          <div class="text-h6">{{ $t("BooksPage.confirm_delete_q2") }}</div>
         </q-card-section>
         <q-card-actions class="botoesModal">
           <q-btn
@@ -199,13 +275,13 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed, watch } from "vue"; // Incluindo 'watch' e 'computed'
+import { ref, onMounted, computed, watch } from "vue";
 import { useQuasar } from "quasar";
-import { useI18n } from 'vue-i18n'; // <-- Importar i18n
+import { useI18n } from "vue-i18n";
 import LivrosService from "src/services/livrosService";
 
 const $q = useQuasar();
-const { t, locale } = useI18n(); // <-- Injetar 't' e 'locale'
+const { t, locale } = useI18n();
 
 // --- ADICIONADO PARA VALIDAÇÃO MANUAL ---
 const errosCadastro = ref({});
@@ -238,14 +314,14 @@ const livroParaDeletarId = ref(null);
 const columns = computed(() => [
   {
     name: "name",
-    label: t('BooksPage.column_title'),
+    label: t("BooksPage.column_title"),
     field: "name",
     align: "left",
     sortable: true,
   },
   {
     name: "author",
-    label: t('BooksPage.column_author'),
+    label: t("BooksPage.column_author"),
     field: "author",
     align: "left",
     sortable: true,
@@ -253,30 +329,32 @@ const columns = computed(() => [
   // Formatando a data para exibir apenas AAAA-MM-DD
   {
     name: "launchDate",
-    label: t('BooksPage.column_launch_date'),
+    label: t("BooksPage.column_launch_date"),
     field: "launchDate",
     align: "center",
     sortable: true,
-    format: (val) => (val ? val.substring(0, 10) : t('BooksPage.not_applicable')),
+    format: (val) =>
+      val ? val.substring(0, 10) : t("BooksPage.not_applicable"),
   },
   {
     name: "totalQuantity",
-    label: t('BooksPage.column_total'),
+    label: t("BooksPage.column_total"),
     field: "totalQuantity",
     align: "center",
     sortable: true,
   },
   {
     name: "totalInUse",
-    label: t('BooksPage.column_in_use'),
+    label: t("BooksPage.column_in_use"),
     field: "totalInUse",
     align: "center",
     sortable: true,
   },
   {
     name: "publisher",
-    label: t('BooksPage.column_publisher'),
-    field: (row) => row.publisher?.name || t('BooksPage.not_applicable'),
+    label: t("BooksPage.column_publisher"),
+    // O field é uma função para extrair o nome da editora
+    field: (row) => row.publisher?.name || t("BooksPage.not_applicable"),
     align: "left",
     sortable: true,
   },
@@ -290,11 +368,9 @@ const validarCampo = (campo) => {
     (!livroForm.value[campo] || livroForm.value[campo].toString().trim() === "")
   ) {
     errosCadastro.value[campo] = true;
-  }
-  else if (campo === "publisherName" && !livroForm.value[campo]) {
+  } else if (campo === "publisherName" && !livroForm.value[campo]) {
     errosCadastro.value[campo] = true;
-  }
-  else if (
+  } else if (
     campo === "totalQuantity" &&
     (!livroForm.value[campo] ||
       isNaN(livroForm.value[campo]) ||
@@ -311,7 +387,11 @@ const validarFormulario = () => {
   let valido = true;
 
   const camposObrigatorios = [
-    "name", "author", "launchDate", "totalQuantity", "publisherName",
+    "name",
+    "author",
+    "launchDate",
+    "totalQuantity",
+    "publisherName",
   ];
 
   camposObrigatorios.forEach((campo) => {
@@ -346,9 +426,8 @@ async function carregarTudo() {
     console.error("Falha geral ao carregar dados:", error);
     $q.notify({
       type: "negative",
-      // Usa $t()
-      message: error.message || t('BooksPage.error_load_default'),
-      caption: error.response?.data?.message || t('BooksPage.error_connection'),
+      message: error.message || t("BooksPage.error_load_default"),
+      caption: error.response?.data?.message || t("BooksPage.error_connection"),
     });
     livros.value = [];
   } finally {
@@ -407,8 +486,7 @@ async function salvarLivro() {
   if (!validarFormulario()) {
     $q.notify({
       type: "warning",
-      // Usa $t()
-      message: t('BooksPage.validation_fill_all'),
+      message: t("BooksPage.validation_fill_all"),
     });
     return;
   }
@@ -418,18 +496,16 @@ async function salvarLivro() {
   try {
     if (editando.value) {
       await LivrosService.atualizar(livroForm.value.id, livroForm.value);
-      // Usa $t()
-      $q.notify({ type: "positive", message: t('BooksPage.success_update') });
+      $q.notify({ type: "positive", message: t("BooksPage.success_update") });
     } else {
       await LivrosService.cadastrar(livroForm.value);
-      // Usa $t()
-      $q.notify({ type: "positive", message: t('BooksPage.success_register') });
+      $q.notify({ type: "positive", message: t("BooksPage.success_register") });
     }
 
     await carregarTudo();
     fecharModal();
   } catch (error) {
-    let errorMessage = t('BooksPage.error_save_default');
+    let errorMessage = t("BooksPage.error_save_default");
 
     if (error.response?.data?.detail) {
       errorMessage = error.response.data.detail;
@@ -456,15 +532,13 @@ async function deletarLivroConfirmado() {
   carregando.value = true;
   try {
     await LivrosService.deletar(livroParaDeletarId.value);
-    // Usa $t()
-    $q.notify({ type: "positive", message: t('BooksPage.success_delete') });
+    $q.notify({ type: "positive", message: t("BooksPage.success_delete") });
     await carregarTudo();
   } catch (error) {
-    let errorMessage = t('BooksPage.error_delete_default');
+    let errorMessage = t("BooksPage.error_delete_default");
 
     if (error.response?.status === 400) {
-      // Usa $t() para mensagem de erro específica
-      errorMessage = t('BooksPage.error_delete_linked');
+      errorMessage = t("BooksPage.error_delete_linked");
     } else if (error.response?.data?.detail) {
       errorMessage = error.response.data.detail;
     }
@@ -486,10 +560,10 @@ onMounted(() => {
 
 // Watcher para reatividade do idioma na tela
 watch(locale, () => {
-    $q.notify({ 
-      type: 'info', 
-      message: t('general.language_updated'), 
-      timeout: 1000 
-    });
+  $q.notify({
+    type: "info",
+    message: t("general.language_updated") || "Idioma atualizado",
+    timeout: 1000,
+  });
 });
 </script>
