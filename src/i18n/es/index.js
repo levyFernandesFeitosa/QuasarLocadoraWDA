@@ -28,7 +28,7 @@ export default {
   RentersPage: {
     title: 'Inquilinos',
     search_placeholder: 'Buscar inquilino',
-    register_button: 'Registrar',
+    register_button: 'Reg.',
     update_button: 'Actualizar',
     cancel_button: 'Cancelar',
     close_button: 'Cerrar',
@@ -72,7 +72,7 @@ export default {
   },
   PublishersPage: {
     title: 'Editoriales',
-    register_button: 'Registrar',
+    register_button: 'Reg.',
     update_button: 'Actualizar',
     delete_button: 'Eliminar',
     cancel_button: 'Cancelar',
@@ -116,7 +116,7 @@ export default {
   },
   BooksPage: {
     title: 'Libros',
-    register_button: 'Registrar',
+    register_button: 'Reg.',
     update_button: 'Actualizar',
     delete_button: 'Eliminar',
     cancel_button: 'Cancelar',
@@ -162,7 +162,7 @@ export default {
   },
   RentalsPage: {
     title: 'Alquileres',
-    register_button: 'Registrar',
+    register_button: 'Reg.',
     update_button: 'Actualizar',
     delete_button: 'Eliminar',
     cancel_button: 'Cancelar',
@@ -219,7 +219,7 @@ export default {
   },
   UsersPage: {
     title: 'Usuarios',
-    register_button: 'Registrar',
+    register_button: 'Reg.',
     update_button: 'Actualizar',
     delete_button: 'Eliminar',
     cancel_button: 'Cancelar',

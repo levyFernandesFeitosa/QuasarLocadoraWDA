@@ -27,6 +27,7 @@
             :label="$t('UsersPage.register_button')"
             color="primary"
             @click="abrirModalCadastro"
+            icon="person_add"
           />
         </div>
 

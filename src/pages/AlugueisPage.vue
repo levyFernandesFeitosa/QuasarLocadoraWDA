@@ -22,6 +22,7 @@
             :label="$t('RentalsPage.register_button')"
             color="primary"
             @click="openCreateModal"
+            icon="person_add"
           />
         </div>
 

@@ -177,10 +177,3 @@ export default {
   }
 };
 </script>
-
-<style>
-
-
-/* Nota: Para que as classes de bandeiras (e.g., flag-icon-br) funcionem, 
-   certifique-se de ter uma biblioteca como a flag-icon-css configurada no seu projeto Quasar. */
-</style>

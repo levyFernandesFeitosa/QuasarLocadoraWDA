@@ -134,6 +134,9 @@ img {
   margin-left: 10%;
   margin-top: 2%;
   background-color: #0d1b2a;
+  @media (max-width: 460px) {
+    margin-left: 0% !important;
+  }
 }
 
 .inputModal .q-field__native,
@@ -206,7 +209,8 @@ img {
 }
 
 .modalCertificando {
-  width: 60% !important;
+
+  width: 30% !important;
   height: 35%;
   border-radius: 5vh !important;
   margin-left: 10%;
@@ -223,6 +227,12 @@ img {
     height: 25% !important;
     margin-top: 0% !important;
     padding-bottom: 3% !important;
+  }
+  @media (max-width: 460px) {
+    width: 100% !important;
+    height: auto;
+    font-size: 2vh;
+    margin-left: 0% !important;
   }
 }
 
@@ -525,7 +535,11 @@ img {
 }
 .flag-btn {
   margin-left: 9%;
-  width: 5vh !important;
+  width: 10% !important;
+  @media (max-width: 480px) {
+    margin-left: 0%;
+    width: 25% !important;
+  }
 }
 
 .q-field--filled,

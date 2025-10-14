@@ -28,7 +28,7 @@ export default {
   RentersPage: {
     title: 'Renters',
     search_placeholder: 'Search renter',
-    register_button: 'Register',
+    register_button: 'Reg.',
     update_button: 'Update',
     cancel_button: 'Cancel',
     close_button: 'Close',
@@ -72,7 +72,7 @@ export default {
   },
   PublishersPage: {
     title: 'Publishers',
-    register_button: 'Register',
+    register_button: 'Reg.',
     update_button: 'Update',
     delete_button: 'Delete',
     cancel_button: 'Cancel',
@@ -116,7 +116,7 @@ export default {
   },
   BooksPage: {
     title: 'Books',
-    register_button: 'Register',
+    register_button: 'Reg.',
     update_button: 'Update',
     delete_button: 'Delete',
     cancel_button: 'Cancel',
@@ -162,7 +162,7 @@ export default {
   },
   RentalsPage: {
     title: 'Rentals',
-    register_button: 'Register',
+    register_button: 'Reg.',
     update_button: 'Update',
     delete_button: 'Delete',
     cancel_button: 'Cancel',
@@ -219,7 +219,7 @@ export default {
   },
   UsersPage: {
     title: 'Users',
-    register_button: 'Register',
+    register_button: 'Reg.',
     update_button: 'Update',
     delete_button: 'Delete',
     cancel_button: 'Cancel',

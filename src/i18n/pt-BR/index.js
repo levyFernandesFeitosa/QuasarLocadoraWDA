@@ -33,7 +33,7 @@ export default {
   RentersPage: {
     title: 'Locatários',
     search_placeholder: 'Pesquisar locatário',
-    register_button: 'Cadastrar',
+    register_button: 'Cadas.',
     update_button: 'Atualizar',
     cancel_button: 'Cancelar',
     close_button: 'Fechar',
@@ -77,7 +77,7 @@ export default {
   },
   PublishersPage: {
     title: 'Editoras',
-    register_button: 'Cadastrar',
+    register_button: 'Cadas.',
     update_button: 'Atualizar',
     delete_button: 'Excluir',
     cancel_button: 'Cancelar',
@@ -122,7 +122,7 @@ export default {
 
   BooksPage: {
     title: 'Livros',
-    register_button: 'Cadastrar',
+    register_button: 'Cadas.',
     update_button: 'Atualizar',
     delete_button: 'Excluir',
     cancel_button: 'Cancelar',
@@ -168,7 +168,7 @@ export default {
   },
   RentalsPage: {
     title: 'Aluguéis',
-    register_button: 'Cadastrar',
+    register_button: 'Cadas.',
     update_button: 'Atualizar',
     delete_button: 'Excluir', // Mantido para consistência, apesar de não ser usado
     cancel_button: 'Cancelar',
@@ -225,7 +225,7 @@ export default {
   },
   UsersPage: {
     title: 'Usuários',
-    register_button: 'Cadastrar',
+    register_button: 'Cadas.',
     update_button: 'Atualizar',
     delete_button: 'Excluir',
     cancel_button: 'Cancelar',
