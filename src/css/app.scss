@@ -61,13 +61,11 @@ img {
 
 .pesquisaALL .q-field__control {
   margin-top: 1%;
-  margin-left: -4%;
-  padding-left: 4%;
+  
 
   @media (max-width: 460px) {
     // lg e xl
     width: 100% !important;
-    margin-left: -2% !important;
 
   }
   @media (min-width: 1440px) {
@@ -83,6 +81,8 @@ img {
   background-color: #00bfa6 !important;
   color: white !important;
   font-size: 3vh !important;
+  padding-left: 5%;
+  padding-right: 5%;
   border-radius: 1vh !important;
   width: 80% !important;
   margin-bottom: 5%;
@@ -93,6 +93,9 @@ img {
     width: 100% !important;
     margin-left: 0% !important;
     margin-top: -5% !important;
+    padding-left: 0% !important;
+    padding-right: 0% !important;
+    
   }
 
   @media (min-width: 1440px) {
@@ -150,7 +153,7 @@ img {
 .inputModalSelect {
   width: 100% !important;
   max-width: 100% !important;
-  margin-left: 2.5%;
+  
   @media (min-width: 1440px) {
     margin-bottom: 5%;
   }
@@ -164,7 +167,6 @@ img {
   /* borda branca */
   border-radius: 8px;
   color: #f5f5f5 !important;
-  margin-left: -1.5%;
 }
 
 .inputModal.q-field--focused .q-field__control,

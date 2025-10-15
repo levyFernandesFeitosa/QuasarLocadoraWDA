@@ -293,6 +293,8 @@ export default {
     link_books: 'Books',
     link_rentals: 'Rentals',
     link_users: 'Users',
+    logout_button: 'Logout',
+    logout_success_message: 'Session successfully ended!',
   },
   general: {
     data_load_error: 'Failed to load Dashboard data.',

@@ -299,6 +299,9 @@ export default {
     link_books: 'Livros',
     link_rentals: 'Aluguéis',
     link_users: 'Usuários',
+
+    logout_button: 'Sair',
+    logout_success_message: 'Sessão encerrada com sucesso!',
   },
   // Aqui você pode adicionar outros namespaces, como 'dashboard', 'settings', etc.
   general: {

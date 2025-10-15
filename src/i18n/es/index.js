@@ -293,6 +293,8 @@ export default {
     link_books: 'Libros',
     link_rentals: 'Alquileres',
     link_users: 'Usuarios',
+    logout_button: 'Cerrar Sesión',
+    logout_success_message: '¡Sesión finalizada con éxito!',
   },
   general: {
     data_load_error: 'Error al cargar los datos del Panel.',

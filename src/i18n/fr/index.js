@@ -293,6 +293,8 @@ export default {
     link_books: 'Livres',
     link_rentals: 'Locations',
     link_users: 'Utilisateurs',
+    logout_button: 'Déconnexion',
+    logout_success_message: 'Session terminée avec succès !',
   },
   general: {
     data_load_error: 'Échec du chargement des données du tableau de bord.',

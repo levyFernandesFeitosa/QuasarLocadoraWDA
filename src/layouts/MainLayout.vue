@@ -41,7 +41,7 @@
                 </div>
 
                 <q-separator class="q-my-sm" /> 
-
+                
                 <div class="q-mb-sm row q-gutter-xs justify-start">
                     <q-btn
                         v-for="lang in langOptions"
@@ -59,7 +59,6 @@
 
                 <q-separator class="q-my-sm" />
 
-                
                 <q-btn
                   class="MenuBTN"
                   id="MenuBTN"
@@ -125,14 +124,14 @@
 </template>
 
 <script setup>
-import { ref, computed } from "vue";
+import { ref, computed, onMounted } from "vue"; // 🚨 onMounted foi importado
 import { useRouter } from 'vue-router'; 
 import { useI18n } from 'vue-i18n'; 
 import { useQuasar } from 'quasar';
 import EssentialLink from "components/EssentialLink.vue";
 import logo from "src/assets/image.png";
 
-// Importação das imagens (Mantida)
+// Imports de bandeiras
 import bandeiraBr from "src/assets/brasilia.png"; 
 import bandeiraUs from "src/assets/estados-unidos.png"; 
 import bandeiraFr from "src/assets/franca.png"; 
@@ -146,11 +145,11 @@ defineOptions({
   name: "MainLayout",
 });
 
-// --- Simulação de Estado de Autenticação (Mantido) ---
+// --- ESTADO DO USUÁRIO ---
 const userInfo = ref({
-    name: 'Caio Cesar',
-    email: 'admin@gmail.com',
-    role: 'ADMIN', 
+    name: 'Carregando...', 
+    email: '',
+    role: '', 
 });
 
 const roleMap = computed(() => ({
@@ -158,50 +157,62 @@ const roleMap = computed(() => ({
     ADMIN: t('UsersPage.role_admin'), 
 }));
 
-// ===========================================================================
-// Lógica de Dark Mode
-// ===========================================================================
-const isDark = computed(() => $q.dark.isActive);
+// 🚨 FUNÇÃO PARA CARREGAR OS DADOS DO localStorage
+function loadUserInfo() {
+    const storedUserInfo = localStorage.getItem('userInfo');
+    if (storedUserInfo) {
+        try {
+            // Converte a string JSON de volta para objeto
+            const user = JSON.parse(storedUserInfo);
+            
+            // Atualiza o ref userInfo com os dados reais
+            userInfo.value.name = user.name || 'Nome Indisponível';
+            userInfo.value.email = user.email || 'Email Indisponível';
+            userInfo.value.role = user.role?.toUpperCase() || 'GUEST'; 
 
-const darkModeIcon = computed(() => {
-  // Ícone de sol para Light Mode, Ícone de lua para Dark Mode
-  return isDark.value ? 'light_mode' : 'dark_mode';
-});
-
-const darkModeLabel = computed(() => {
-  return isDark.value ? t('MainLayout.mode_light') : t('MainLayout.mode_dark');
-});
-
-function toggleDarkMode() {
-  // Alterna o estado do modo escuro
-  $q.dark.toggle();
+        } catch (e) {
+            console.error("Erro ao parsear dados do usuário do localStorage:", e);
+            // Se os dados estiverem corrompidos, força o logout
+            handleLogout(); 
+        }
+    } else {
+        // Se a chave não existe, verifica se há token para evitar loop.
+        // Se não há info e não há token, vai para login.
+        if (!localStorage.getItem('authToken')) {
+            console.warn("Nenhum dado de autenticação encontrado. Redirecionando.");
+            handleLogout(); 
+        }
+    }
 }
+
+// 🚨 Chamado ao iniciar o componente
+onMounted(() => {
+    loadUserInfo();
+});
+
 
 // --- Configuração de Idioma (Mantida) ---
 const language = ref(locale.value); 
-
 const langOptions = [
     { label: 'Português', value: 'pt-BR' },
     { label: 'English', value: 'en-US' },
     { label: 'Español', value: 'es' },
     { label: 'Français', value: 'fr' },
 ];
-
 const flagImageMap = {
     'pt-BR': bandeiraBr,
     'en-US': bandeiraUs,
     'fr': bandeiraFr,
     'es': bandeiraEs,
 };
-
 function getFlagIcon(langCode) {
     const path = flagImageMap[langCode];
     return `img:${path}`; 
 }
-
 function setLanguage(newLang) {
     language.value = newLang; 
-    locale.value = newLang;   
+    locale.value = newLang; 
+    localStorage.setItem('user-language', newLang); 
     $q.notify({
         type: 'info',
         message: t('general.language_updated'),
@@ -234,17 +245,29 @@ function toggleLeftDrawer() {
   leftDrawerOpen.value = !leftDrawerOpen.value;
 }
 
+// FUNÇÃO DE LOGOUT ATUALIZADA
 async function handleLogout() {
-  console.log("Executando script de limpeza de estado...");
+  console.log("Executando logout e limpando sessão...");
   
+  // 1. Limpar dados de autenticação no LocalStorage
+  localStorage.removeItem('authToken');
+  localStorage.removeItem('userInfo'); // 🚨 Limpa a chave do usuário
+  localStorage.removeItem('user-language'); 
+
+  // 2. Notificar o usuário
+  $q.notify({
+      type: 'info',
+      message: t('MainLayout.logout_success_message') || 'Sessão encerrada com sucesso!',
+      timeout: 2000,
+      position: 'top'
+  });
+  
+  // 3. Redirecionar para a tela de login (/)
   try {
-    await router.push({ path: '/' }); 
-    window.location.reload(); 
-    
+      await router.replace({ path: '/' }); 
   } catch (error) {
-    console.error("Erro durante o logout (navegação/recarga):", error);
-    window.location.href = '/'; 
+      console.error("Erro durante a navegação após logout:", error);
+      window.location.href = '/'; 
   }
 }
 </script>
-

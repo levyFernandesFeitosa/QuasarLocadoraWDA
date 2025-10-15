@@ -1,5 +1,5 @@
 <template>
-  <q-page class="flex flex-center" style="height: 100vh; background-color: #edead0;">
+  <q-page class="flex flex-center q-pa-md" style="height: 100vh; background-color: #edead0;">
     
     <div class="language-selector-container">
       
@@ -34,20 +34,29 @@
       </div>
       
     </div>
-    <q-card class="row no-wrap" style="border-radius: 3vh; width: 70%; height: 70%;">
-      <div class="containerLeft" style="border-radius: 3vh;">
-        <div>
-          <div class="logoWDA"><img :src="logo" alt="Logo WDA" /></div>
-          <div class="text1">{{ $t('login.welcome_to') }}</div>
-          <div class="text2">{{ $t('login.app_name') }}</div>
+
+    <q-card class="row q-card-login-responsive" style="border-radius: 3vh;">
+      
+      <div 
+        class="containerLeft col-md-5 hidden-sm hidden-xs" 
+        style="border-radius: 3vh;"
+      >
+        <div class="flex">
+          <div class="contentLeft"> 
+            <div class="logoWDA"><img :src="logo" alt="Logo WDA" /></div>
+            <div class="text1">{{ $t('login.welcome_to') }}</div>
+            <div class="text2">{{ $t('login.app_name') }}</div>
+          </div>
         </div>
       </div>
-      <div class="containerRight">
+      
+      <div class="containerRight col-xs-12 col-sm-12 col-md-7">
         <q-card flat class="full-width" >
           <q-card-section>
             <div class="text3">{{ $t('login.make_your_login') }}</div>
             <div class="text4">{{ $t('login.happy_to_see_you_again') }}</div>
           </q-card-section>
+          
           <q-form class="campos" @submit.prevent="handleLogin">
             <q-input 
               filled 
@@ -86,8 +95,11 @@
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { useQuasar } from 'quasar';
+// Certifique-se de que este caminho está correto
 import authService from 'src/services/authService.js'; 
-import logo from 'src/assets/image.png';
+// Certifique-se de que este caminho está correto
+import { usuarioService } from 'src/services/usuarioService';
+import logo from 'src/assets/image.png'; 
 import { useI18n } from 'vue-i18n'; 
 
 export default {
@@ -95,7 +107,6 @@ export default {
   setup() {
     const router = useRouter();
     const $q = useQuasar();
-    // NOVO: Destruturando `locale` (o idioma atual) e `t` (função de tradução)
     const { t, locale } = useI18n(); 
 
     // VARIÁVEIS REATIVAS EXISTENTES
@@ -117,23 +128,46 @@ export default {
 
     // NOVO: Função para mudar o idioma
     const changeLanguage = (langCode) => {
-      // 1. Altera o locale reativo do vue-i18n
       locale.value = langCode;
-      
-      // 2. Salva no localStorage (opcional, mas recomendado para persistência)
       localStorage.setItem('user-language', langCode);
-      
-      // 3. Fecha o menu após a seleção
       langMenuVisible.value = false;
     };
 
-    // FUNÇÃO PRINCIPAL DE LOGIN (handleLogin)
+    // FUNÇÃO PRINCIPAL DE LOGIN (handleLogin) - ATUALIZADA
     const handleLogin = async () => {
       error.value = null; 
       loading.value = true;
+      const loginEmail = email.value.toLowerCase(); // Captura o email para busca
 
       try {
-        await authService.login(email.value, password.value);
+        // 1. Tenta fazer o login e salvar o token (authService.js já faz isso)
+        // Precisamos apenas da confirmação de sucesso para prosseguir
+        await authService.login(loginEmail, password.value);
+        
+        console.log("Passo 1: Login bem-sucedido. Token salvo.");
+
+        // 2. BUSCA A LISTA COMPLETA DE USUÁRIOS (Usando o token recém-salvo)
+        const allUsers = await usuarioService.listarUsuarios();
+        
+        // 3. ENCONTRA O USUÁRIO LOGADO PELO E-MAIL
+        const loggedUser = allUsers.find(
+          (user) => user.email.toLowerCase() === loginEmail
+        );
+
+        if (loggedUser) {
+            // 4. SALVA APENAS OS DADOS DO USUÁRIO ENCONTRADO
+            // O MainLayout precisa de { name, email, role }
+            localStorage.setItem('userInfo', JSON.stringify(loggedUser));
+            console.log("Passo 4: Dados do usuário encontrados e salvos:", loggedUser.name);
+        } else {
+            console.error("Usuário autenticado, mas não encontrado na listagem. MainLayout pode falhar.");
+            // Salva apenas os dados conhecidos para evitar o 'Carregando...'
+            localStorage.setItem('userInfo', JSON.stringify({ 
+                name: loginEmail.split('@')[0], 
+                email: loginEmail, 
+                role: 'GUEST' // Assume um papel padrão
+            }));
+        }
 
         $q.notify({
           type: 'positive',
@@ -147,7 +181,7 @@ export default {
         loading.value = false;
         
         const fallbackMsg = t('login.error_message_default'); 
-        const msg = err.response?.data?.message || fallbackMsg;
+        const msg = err.response?.data?.message || err.message || fallbackMsg;
         error.value = msg; 
         
         $q.notify({
@@ -168,7 +202,6 @@ export default {
       error,
       loading,
       handleLogin,
-      // NOVOS RETORNOS PARA O SELETOR DE IDIOMA
       locale,
       languages,
       changeLanguage,

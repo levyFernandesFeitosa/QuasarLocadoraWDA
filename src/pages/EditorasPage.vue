@@ -272,12 +272,10 @@
     </q-dialog>
 
     <q-dialog v-model="modalExcluir">
-      <q-card class="modalCertificando" style="max-width: 35%; width: 100%">
-        <q-card-section class="conteudoModal">
-          <div class="text-h6">
-            {{ $t("PublishersPage.confirm_delete_q1") }}
-          </div>
-          <div class="q-mt-sm">
+      <q-card class="modalCertificando" style="">
+        <q-card-section class="conteudoModal text-center">
+          <div class="text-h6 lt-sm:text-body1">
+            {{ $t("PublishersPage.confirm_delete_q1") }},
             {{ $t("PublishersPage.confirm_delete_q2") }}
           </div>
         </q-card-section>

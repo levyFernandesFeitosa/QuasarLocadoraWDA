@@ -151,7 +151,7 @@
       </template>
     </q-table>
     <q-dialog v-model="modalAberto">
-      <q-card class="modal" style="min-width: 450px">
+      <q-card class="modal" >
         <q-form @submit.prevent="salvarAluguel" style="width: 100%">
           <q-card-section class="conteudoModal">
             <div class="tituloModal">
