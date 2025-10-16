@@ -9,7 +9,7 @@ const dashboardService = {
    * @param {number} numberOfMonths - Número de meses para alguns filtros.
    * @returns {Promise<Object>} Objeto contendo todas as respostas da API.
    */
-  async loadDashboardData(numberOfMonths = 1) {
+  async loadDashboardData(numberOfMonths = 3) {
     const params = { numberOfMonths };
     
     try {

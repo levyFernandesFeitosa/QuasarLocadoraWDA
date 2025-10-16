@@ -24,6 +24,7 @@ export default {
     Returned: 'Returned',
     Pending: 'Pending',
     Rentals: 'Rentals',
+    Late: 'Late'
   },
   RentersPage: {
     title: 'Renters',

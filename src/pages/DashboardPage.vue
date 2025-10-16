@@ -47,8 +47,8 @@
               page: 1,
               rowsPerPage: 
                 $q.screen.md ? 2 : 
-                $q.screen.lg ? 7 : 
-                7
+                $q.screen.lg ? 5 : 
+                5
           }"
           :rows-per-page-options="[0]"
           
@@ -238,7 +238,7 @@ function renderCharts() {
         labels: [
           t('DashboardPage.Returned'),
           t('DashboardPage.Pending'), 
-          t('DashboardPage.Rentals')
+          t('DashboardPage.Late')
         ],
         datasets: [{
           label: t('DashboardPage.Rental_Distribution'), 

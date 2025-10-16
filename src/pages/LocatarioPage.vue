@@ -76,7 +76,7 @@
               dense
               flat
               icon="edit"
-              color="positive"
+              color="primary"
               @click="editarLocatario(props.row)"
             />
             <q-btn

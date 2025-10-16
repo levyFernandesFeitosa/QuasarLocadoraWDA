@@ -151,7 +151,7 @@
       </template>
     </q-table>
     <q-dialog v-model="modalAberto">
-      <q-card class="modal" >
+      <q-card class="modal">
         <q-form @submit.prevent="salvarAluguel" style="width: 100%">
           <q-card-section class="conteudoModal">
             <div class="tituloModal">
@@ -263,7 +263,8 @@ import { useI18n } from "vue-i18n";
 import AlugueisService from "src/services/alugueisService";
 
 const $q = useQuasar();
-const { t, locale } = useI18n();
+// Desestrutura 't' e 'locale' do useI18n. 'locale' é usado na formatação de data.
+const { t, locale } = useI18n(); 
 
 // --- Mapeamento de Status (COMPUTED para reatividade do idioma) ---
 const statusMap = computed(() => ({
@@ -352,9 +353,30 @@ const columns = computed(() => [
 
 // --- Funções Auxiliares (Data Formatting) ---
 
+/**
+ * Formata a data com base no locale ativo.
+ * Se o idioma for inglês (en), usa MM/DD/YYYY.
+ * Caso contrário (ex: pt-BR), usa DD/MM/YYYY.
+ * @param {string} data - A data no formato YYYY-MM-DD (geralmente vinda da API/input date).
+ * @returns {string} A data formatada.
+ */
 function formatarData(data) {
   if (!data) return t("RentalsPage.not_applicable_short");
-  return data.substring(0, 10).split("-").reverse().join("/");
+
+  // O formato da data é YYYY-MM-DD
+  const dateParts = data.substring(0, 10).split("-"); 
+  const year = dateParts[0];
+  const month = dateParts[1];
+  const day = dateParts[2];
+
+  // Verifica se o idioma ativo é inglês ('en', 'en-US', 'en-GB', etc.)
+  if (locale.value.startsWith('en')) {
+    // Formato EN: Mês/Dia/Ano (MM/DD/YYYY)
+    return `${month}/${day}/${year}`;
+  } else {
+    // Formato PT (ou padrão): Dia/Mês/Ano (DD/MM/YYYY)
+    return `${day}/${month}/${year}`;
+  }
 }
 
 // --- Funções de Validação (Mantidas) ---
@@ -566,7 +588,8 @@ onMounted(() => {
 // Watcher para reatividade do idioma na tela
 watch(locale, () => {
   // Recarrega todos os dados para que as colunas e o statusMap sejam atualizados.
-  fetchAllData();
+  // Isso garante que a função formatarData(val) nas colunas seja reavaliada com o novo locale.
+  fetchAllData(); 
   $q.notify({
     type: "info",
     message: t("general.language_updated"),

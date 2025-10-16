@@ -24,6 +24,7 @@ export default {
     Returned: 'Devueltos',
     Pending: 'Pendientes',
     Rentals: 'Alquileres',
+    Late: 'Retrasados',
   },
   RentersPage: {
     title: 'Inquilinos',

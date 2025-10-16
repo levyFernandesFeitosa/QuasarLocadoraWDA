@@ -24,6 +24,7 @@ export default {
     Returned: 'Rendués',
     Pending: 'En Attente',
     Rentals: 'Locations',
+    Late: 'En Retard'
   },
   RentersPage: {
     title: 'Locataires',
